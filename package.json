@@ -4,17 +4,21 @@
   "description": "Wiser Sport core engine",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha"
   },
   "author": "Low Jeng Lam <jenglamlow@gmail.com>",
   "license": "ISC",
   "devDependencies": {
+    "chai": "^4.1.2",
     "eslint": "^5.1.0",
     "eslint-config-standard": "^11.0.0",
     "eslint-plugin-import": "^2.13.0",
+    "eslint-plugin-mocha": "^5.1.0",
     "eslint-plugin-node": "^6.0.1",
     "eslint-plugin-promise": "^3.8.0",
-    "eslint-plugin-standard": "^3.1.0"
+    "eslint-plugin-requirejs": "^3.2.0",
+    "eslint-plugin-standard": "^3.1.0",
+    "mocha": "^5.2.0"
   },
   "dependencies": {}
 }
