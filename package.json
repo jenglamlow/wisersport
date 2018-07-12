@@ -4,7 +4,7 @@
   "description": "Wiser Sport core engine",
   "main": "index.js",
   "scripts": {
-    "test": "mocha"
+    "test": "node_modules/.bin/mocha --reporter spec"
   },
   "author": "Low Jeng Lam <jenglamlow@gmail.com>",
   "license": "ISC",
@@ -12,6 +12,7 @@
     "chai": "^4.1.2",
     "eslint": "^5.1.0",
     "eslint-config-standard": "^11.0.0",
+    "eslint-plugin-chai-friendly": "^0.4.1",
     "eslint-plugin-import": "^2.13.0",
     "eslint-plugin-mocha": "^5.1.0",
     "eslint-plugin-node": "^6.0.1",

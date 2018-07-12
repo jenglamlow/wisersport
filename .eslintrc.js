@@ -1,7 +1,8 @@
 module.exports = {
   "plugins": [
     "mocha",
-    "requirejs"
+    "requirejs",
+    "chai-friendly"
   ],
   "env": {
     "mocha": true,
@@ -10,6 +11,7 @@ module.exports = {
   "extends": "standard",
   'rules': {
     'semi': [2, 'always'],
+    "no-unused-expressions": 0,
 
     "mocha/no-exclusive-tests": "error",
 
@@ -17,6 +19,8 @@ module.exports = {
     "requirejs/no-multiple-define": 2,
     "requirejs/no-named-define": 2,
     "requirejs/no-commonjs-wrapper": 2,
-    "requirejs/no-object-define": 1
+    "requirejs/no-object-define": 1,
+
+    "chai-friendly/no-unused-expressions": 2
   }
 };
