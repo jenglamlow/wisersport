@@ -11,10 +11,6 @@ let Ball = function (color, number) {
 };
 
 Ball.prototype = {
-  info: function () {
-    return this.state;
-  },
-
   hit: function (ball) {
     this.state.hit.push(ball);
     this.state.activeHit.push(ball);
@@ -46,6 +42,14 @@ Ball.prototype = {
         throw new Error('It is not locked!');
       }
     }
+  },
+
+  removeActiveHit: function () {
+
+  },
+
+  foul: function () {
+    this.state.foul++;
   },
 
   clear: function () {
