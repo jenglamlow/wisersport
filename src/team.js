@@ -27,9 +27,9 @@ Team.prototype = {
   clear: function () {
     this.state.score = 0;
 
-    for (let ball of this.ball) {
-      ball.clear();
-    }
+    this.ball.forEach(item => {
+      item.clear();
+    });
   }
 };
 

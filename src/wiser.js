@@ -10,22 +10,79 @@
   }
 }(this, function () {
   'user strict';
+  const Team = require('./team');
 
-  let Wiser = function (redTeam, whiteTeam, ball = 7, start = 'r') {
-    this.redTeam = redTeam;
-    this.whiteTeam = whiteTeam;
+  // Constructor
+  let Wiser = function (redName = 'Red', whiteName = 'White', num = 7) {
+    this.team = {
+      r: new Team(redName, 'red', num),
+      w: new Team(whiteName, 'white', num)
+    };
+
+    this.state = {
+      red: this.team.r.state,
+      white: this.team.w.state,
+      sequence: []
+    };
   };
 
-  Wiser.prototype = {
-    info: function () {
-      console.log('info');
-    },
+  // ==========================================================================
+  // Function
+  // ==========================================================================
 
+  Wiser.prototype = {
     process: function (input) {
-      if ((input.length >= 3) && (input.length <= 4)) {
-      } else {
-        throw new Error('Input length must in the range of 3-4');
+      // Check length
+      if (input.length !== 4) {
+        throw new Error('Input length must be length of 4');
       }
+
+      const re = /([rw])([t1-7])([frw])([mx1-7])/g;
+      const match = re.exec(input);
+
+      // Validate Input
+      if (!match) {
+        throw new Error('Invalid input parameter');
+      }
+
+      // Check whether is foul mode
+      let mode = 'n';
+      if (match[3] === 'f') {
+        if ((match[4] !== 'm') || (match[4] !== 'x')) {
+          throw new Error('Invalid input parameter');
+        }
+        mode = 'f';
+      }
+
+      const s = {
+        label: match[1] + match[2],
+        team: match[1],
+        idx: parseInt(match[2]) - 1
+      };
+
+      if (mode === 'n') {
+        // Normal input action
+        const t = {
+          label: match[3] + match[4],
+          team: match[3],
+          idx: parseInt(match[4]) - 1
+        };
+
+        /* Check whether the ball is contesting ball */
+        if (this.team[s.team].ball[s.idx].isContesting()) {
+          // Proper Hit
+          if (s.team !== t.team) {
+            this.team[s.team].ball[s.idx].hit(t.label);
+            console.log(this.state.white.balls);
+          }
+        } else {
+          throw new Error('The ball is not contesting ball, cannot attack');
+        }
+      } else {
+        // Foul input action
+      }
+
+      this.state.sequence.push(input);
     },
 
     clear: function () {
