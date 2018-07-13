@@ -34,6 +34,7 @@ Ball.prototype = {
 
   rescue: function () {
     if ((this.state.status > 0) && (this.state.status < 3)) {
+      this.state.status--;
       this.state.hitBy.shift();
     } else {
       if (this.state.status === 3) {
@@ -44,8 +45,8 @@ Ball.prototype = {
     }
   },
 
-  removeActiveHit: function () {
-
+  isContesting: function () {
+    return this.state.status === 0;
   },
 
   foul: function () {

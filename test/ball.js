@@ -58,14 +58,17 @@ describe('Ball', function () {
     it('Check hitBy list and status', function () {
       b.hitBy('w7');
       expect(b.state.status).to.equal(1);
+      expect(b.isContesting()).to.be.false;
       expect(b.state.hitBy).to.have.ordered.members(['w7']);
 
       b.hitBy('w6');
       expect(b.state.status).to.equal(2);
+      expect(b.isContesting()).to.be.false;
       expect(b.state.hitBy).to.have.ordered.members(['w7', 'w6']);
 
       b.hitBy('w5');
       expect(b.state.status).to.equal(3);
+      expect(b.isContesting()).to.be.false;
       expect(b.state.hitBy).to.have.ordered.members(['w7', 'w6', 'w5']);
 
       // Status capped at 3
@@ -111,6 +114,34 @@ describe('Ball', function () {
       rescue = b.hitBy('w5');
       expect(rescue).to.be.null;
       expect(b.state.status).to.equal(3);
+    });
+  });
+
+  describe('Rescue', function () {
+    const b = new Ball('r', 7);
+    beforeEach(function () {
+      b.clear();
+    });
+
+    it('Get rescue', function () {
+      b.hitBy('w5');
+      expect(b.isContesting()).to.be.false;
+      expect(b.state.hitBy).to.have.ordered.members(['w5']);
+
+      b.rescue();
+      expect(b.isContesting()).to.be.true;
+      expect(b.state.hitBy).to.be.an('array').that.is.empty;
+    });
+
+    it('Contesting ball calling rescue should trigger error', function () {
+      expect(function () { b.rescue(); }).to.be.throw('It is not locked!');
+    });
+
+    it('Eliminated Ball cannot be rescue', function () {
+      b.hitBy('w6');
+      b.hitBy('w6');
+      b.hitBy('w6');
+      expect(function () { b.rescue(); }).to.be.throw('Already eliminated! Cannot be rescued');
     });
   });
 
