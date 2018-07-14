@@ -86,6 +86,9 @@
     },
 
     clear: function () {
+      this.state.sequence = [];
+      this.team.r.clear();
+      this.team.w.clear();
     }
   };
 

@@ -54,6 +54,19 @@ describe('Wiser Game', function () {
     });
   });
 
+  describe('Clear', function () {
+    it('Clear sequence, team and ball state', function () {
+      let wiser = new Wiser('Red', 'White');
+
+      wiser.process('r1w1');
+      wiser.process('r2w2');
+      wiser.process('r3w3');
+
+      wiser.clear();
+      expect(wiser.state.sequence).to.be.an('array').that.is.empty;
+    });
+  });
+
   describe('Hit', function () {
     let wiser = new Wiser('Red', 'White');
 
@@ -66,29 +79,17 @@ describe('Wiser Game', function () {
       // First Lock
       wiser.process('r1w1');
 
-      expect(wiser.state.red.balls[0].hit).to.have.ordered.members(['w1']);
-      expect(wiser.state.red.balls[0].activeHit).to.have.ordered.members(['w1']);
-
-      expect(wiser.state.white.balls[0].hitBy).to.have.ordered.members(['r1']);
-      expect(wiser.state.white.balls[0].status).to.equal(1);
+      expect(wiser.state.sequence).to.have.ordered.members(['r1w1']);
 
       // Second Lock
       wiser.process('r2w1');
 
-      expect(wiser.state.red.balls[1].hit).to.have.ordered.members(['w1']);
-      expect(wiser.state.red.balls[1].activeHit).to.have.ordered.members(['w1']);
-
-      expect(wiser.state.white.balls[0].hitBy).to.have.ordered.members(['r1', 'r2']);
-      expect(wiser.state.white.balls[0].status).to.equal(2);
+      expect(wiser.state.sequence).to.have.ordered.members(['r1w1', 'r2w1']);
 
       // Strike Out
       wiser.process('r1w1');
 
-      expect(wiser.state.red.balls[0].hit).to.have.ordered.members(['w1', 'w1']);
-      expect(wiser.state.red.balls[0].activeHit).to.have.ordered.members(['w1', 'w1']);
-
-      expect(wiser.state.white.balls[0].hitBy).to.have.ordered.members(['r1', 'r2', 'r1']);
-      expect(wiser.state.white.balls[0].status).to.equal(3);
+      expect(wiser.state.sequence).to.have.ordered.members(['r1w1', 'r2w1', 'r1w1']);
 
       // Hit the eliminated ball again should trigger error
       expect(function () { wiser.process('r1w1'); }).to.be.throw('Already eliminated!');

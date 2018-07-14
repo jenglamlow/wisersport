@@ -30,10 +30,8 @@ describe('Team', function () {
 
       r.ball[0].hit('w3');
 
-      expect(r.state.balls[0].hit).to.have.ordered.members(['w3']);
-
       r.clear();
-      expect(r.state.balls[0].hit).to.be.empty;
+      expect(r.state.score).to.equal(0);
     });
   });
 });
