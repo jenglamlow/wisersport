@@ -5,7 +5,7 @@ let Team = function (name, color, num = 7) {
 
   // Initialize Ball Object
   for (let i = 0; i < num; i++) {
-    let b = new Ball(color, i + 1);
+    let b = new Ball(color + (i + 1).toString());
     balls.push(b);
   }
 

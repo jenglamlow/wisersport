@@ -9,17 +9,17 @@ describe('Wiser Game', function () {
     it('Check initialization value', function () {
       let wiser = new Wiser('Red', 'White');
 
-      expect(wiser.red.name).to.equal('Red');
-      expect(wiser.white.name).to.equal('White');
-      expect(wiser.red.balls).to.have.lengthOf(7);
-      expect(wiser.white.balls).to.have.lengthOf(7);
+      expect(wiser.r.name).to.equal('Red');
+      expect(wiser.w.name).to.equal('White');
+      expect(wiser.r.balls).to.have.lengthOf(7);
+      expect(wiser.w.balls).to.have.lengthOf(7);
 
       wiser = new Wiser('Eagle', 'Falcon', 5);
 
-      expect(wiser.red.name).to.equal('Eagle');
-      expect(wiser.white.name).to.equal('Falcon');
-      expect(wiser.red.balls).to.have.lengthOf(5);
-      expect(wiser.white.balls).to.have.lengthOf(5);
+      expect(wiser.r.name).to.equal('Eagle');
+      expect(wiser.w.name).to.equal('Falcon');
+      expect(wiser.r.balls).to.have.lengthOf(5);
+      expect(wiser.w.balls).to.have.lengthOf(5);
     });
   });
 
@@ -92,6 +92,22 @@ describe('Wiser Game', function () {
       expect(wiser.sequence).to.have.ordered.members(['r1w1', 'r2w1', 'r1w1']);
 
       // Hit the eliminated ball again should trigger error
+      expect(function () { wiser.process('r1w1'); }).to.be.throw('Already eliminated!');
+    });
+
+    it('Ball cannot attack when it is not contesting ball', function () {
+      // First Lock
+      wiser.process('r1w1');
+
+      expect(function () { wiser.process('w1r2'); }).to.be.throw('The w1 is not contesting ball, cannot attack');
+    });
+
+    it('Ball cannot hit eliminated ball', function () {
+      // First Lock
+      wiser.process('r1w1');
+      wiser.process('r1w1');
+      wiser.process('r1w1');
+
       expect(function () { wiser.process('r1w1'); }).to.be.throw('Already eliminated!');
     });
   });

@@ -1,6 +1,5 @@
-let Ball = function (color, number) {
-  this.number = number;
-  this.color = color;
+let Ball = function (label) {
+  this.label = label;
   this.status = 0;
   this.foul = 0;
   this.hits = [];

@@ -7,15 +7,14 @@ const Ball = require('../src/ball');
 describe('Ball', function () {
   describe('Initialization', function () {
     it('Check initialization value', function () {
-      const b = new Ball('w', 5);
+      const b = new Ball('w5');
 
-      expect(b.color).to.equal('w');
-      expect(b.number).to.equal(5);
+      expect(b.label).to.equal('w5');
     });
   });
 
   describe('Clear', function () {
-    const b = new Ball('w', 7);
+    const b = new Ball('w7');
     it('Clear internal state', function () {
       b.hit('w3');
       b.clear();
@@ -27,14 +26,13 @@ describe('Ball', function () {
       expect(b.status).to.equal(0);
     });
 
-    it('Color and number remain', function () {
-      expect(b.color).to.equal('w');
-      expect(b.number).to.equal(7);
+    it('Label remain', function () {
+      expect(b.label).to.equal('w7');
     });
   });
 
   describe('Hit', function () {
-    const b = new Ball('r', 7);
+    const b = new Ball('r7');
 
     it('Check hit list and active hit list', function () {
       b.hit('r7');
@@ -49,7 +47,7 @@ describe('Ball', function () {
   });
 
   describe('Hit By', function () {
-    const b = new Ball('r', 7);
+    const b = new Ball('r7');
 
     beforeEach(function () {
       b.clear();
@@ -118,7 +116,7 @@ describe('Ball', function () {
   });
 
   describe('Rescue', function () {
-    const b = new Ball('r', 7);
+    const b = new Ball('r7');
     beforeEach(function () {
       b.clear();
     });
@@ -146,7 +144,7 @@ describe('Ball', function () {
   });
 
   describe('Foul', function () {
-    const b = new Ball('r', 7);
+    const b = new Ball('r7');
 
     it('Check foul increment', function () {
       b.commitFoul();

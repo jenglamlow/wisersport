@@ -14,8 +14,8 @@
 
   // Constructor
   let Wiser = function (redName = 'Red', whiteName = 'White', num = 7) {
-    this.red = new Team(redName, 'red', num);
-    this.white = new Team(whiteName, 'white', num);
+    this.r = new Team(redName, 'r', num);
+    this.w = new Team(whiteName, 'w', num);
     this.sequence = [];
   };
 
@@ -49,7 +49,7 @@
 
       const s = {
         label: match[1] + match[2],
-        team: match[1] === 'r' ? 'red' : 'white',
+        team: match[1],
         idx: parseInt(match[2]) - 1
       };
 
@@ -57,7 +57,7 @@
         // Normal input action
         const t = {
           label: match[3] + match[4],
-          team: match[3] === 'r' ? 'red' : 'white',
+          team: match[3],
           idx: parseInt(match[4]) - 1
         };
 
@@ -67,9 +67,11 @@
           if (s.team !== t.team) {
             this[s.team].balls[s.idx].hit(t.label);
             const rescue = this[t.team].balls[t.idx].getHitBy(s.label);
+          } else {
+            // Miss Hit
           }
         } else {
-          throw new Error('The ball is not contesting ball, cannot attack');
+          throw new Error('The ' + s.label + ' is not contesting ball, cannot attack');
         }
       } else {
         // Foul input action
@@ -80,8 +82,8 @@
 
     clear: function () {
       this.sequence = [];
-      this.red.clear();
-      this.white.clear();
+      this.r.clear();
+      this.w.clear();
     }
   };
 
