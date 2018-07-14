@@ -14,16 +14,9 @@
 
   // Constructor
   let Wiser = function (redName = 'Red', whiteName = 'White', num = 7) {
-    this.team = {
-      r: new Team(redName, 'red', num),
-      w: new Team(whiteName, 'white', num)
-    };
-
-    this.state = {
-      red: this.team.r.state,
-      white: this.team.w.state,
-      sequence: []
-    };
+    this.red = new Team(redName, 'red', num);
+    this.white = new Team(whiteName, 'white', num);
+    this.sequence = [];
   };
 
   Wiser.prototype = {
@@ -56,7 +49,7 @@
 
       const s = {
         label: match[1] + match[2],
-        team: match[1],
+        team: match[1] === 'r' ? 'red' : 'white',
         idx: parseInt(match[2]) - 1
       };
 
@@ -64,16 +57,16 @@
         // Normal input action
         const t = {
           label: match[3] + match[4],
-          team: match[3],
+          team: match[3] === 'r' ? 'red' : 'white',
           idx: parseInt(match[4]) - 1
         };
 
         /* Check whether the ball is contesting ball */
-        if (this.team[s.team].ball[s.idx].isContesting()) {
+        if (this[s.team].balls[s.idx].isContesting()) {
           // Proper Hit
           if (s.team !== t.team) {
-            this.team[s.team].ball[s.idx].hit(t.label);
-            const rescue = this.team[t.team].ball[t.idx].hitBy(s.label);
+            this[s.team].balls[s.idx].hit(t.label);
+            const rescue = this[t.team].balls[t.idx].getHitBy(s.label);
           }
         } else {
           throw new Error('The ball is not contesting ball, cannot attack');
@@ -82,13 +75,13 @@
         // Foul input action
       }
 
-      this.state.sequence.push(input);
+      this.sequence.push(input);
     },
 
     clear: function () {
-      this.state.sequence = [];
-      this.team.r.clear();
-      this.team.w.clear();
+      this.sequence = [];
+      this.red.clear();
+      this.white.clear();
     }
   };
 

@@ -6,20 +6,20 @@ const Team = require('../src/team');
 
 describe('Team', function () {
   describe('Initialization', function () {
-    it('Check state', function () {
+    it('Check internal state', function () {
       // Default value
       let r = new Team('Red', 'r');
 
-      expect(r.state.name).to.equal('Red');
-      expect(r.state.color).to.equal('r');
-      expect(r.state.balls).to.have.lengthOf(7);
+      expect(r.name).to.equal('Red');
+      expect(r.color).to.equal('r');
+      expect(r.balls).to.have.lengthOf(7);
 
       // Pass in parameter
       r = new Team('White', 'w', 4);
 
-      expect(r.state.name).to.equal('White');
-      expect(r.state.color).to.equal('w');
-      expect(r.state.balls).to.have.lengthOf(4);
+      expect(r.name).to.equal('White');
+      expect(r.color).to.equal('w');
+      expect(r.balls).to.have.lengthOf(4);
     });
   });
 
@@ -28,10 +28,10 @@ describe('Team', function () {
       // Default value
       let r = new Team('Red', 'r');
 
-      r.ball[0].hit('w3');
+      r.balls[0].hit('w3');
 
       r.clear();
-      expect(r.state.score).to.equal(0);
+      expect(r.score).to.equal(0);
     });
   });
 });

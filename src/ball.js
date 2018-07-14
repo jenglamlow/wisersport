@@ -1,29 +1,27 @@
 let Ball = function (color, number) {
-  this.state = {
-    number: number,
-    color: color,
-    status: 0,
-    foul: 0,
-    hit: [],
-    activeHit: [],
-    hitBy: []
-  };
+  this.number = number;
+  this.color = color;
+  this.status = 0;
+  this.foul = 0;
+  this.hits = [];
+  this.activeHits = [];
+  this.hitBy = [];
 };
 
 Ball.prototype = {
   hit: function (ball) {
-    this.state.hit.push(ball);
-    this.state.activeHit.push(ball);
+    this.hits.push(ball);
+    this.activeHits.push(ball);
   },
 
-  hitBy: function (ball) {
-    if (this.state.status < 3) {
-      this.state.hitBy.push(ball);
-      this.state.status++;
+  getHitBy: function (ball) {
+    if (this.status < 3) {
+      this.hitBy.push(ball);
+      this.status++;
 
       // Get rescue list
-      if (this.state.activeHit.length > 0) {
-        return this.state.activeHit.shift();
+      if (this.activeHits.length > 0) {
+        return this.activeHits.shift();
       } else {
         return null;
       }
@@ -33,32 +31,32 @@ Ball.prototype = {
   },
 
   rescue: function () {
-    if ((this.state.status > 0) && (this.state.status < 3)) {
-      this.state.status--;
-      this.state.hitBy.shift();
+    if ((this.status > 0) && (this.status < 3)) {
+      this.status--;
+      this.hitBy.shift();
     } else {
-      if (this.state.status === 3) {
+      if (this.status === 3) {
         throw new Error('Already eliminated! Cannot be rescued');
-      } else if (this.state.status === 0) {
+      } else if (this.status === 0) {
         throw new Error('It is not locked!');
       }
     }
   },
 
   isContesting: function () {
-    return this.state.status === 0;
+    return this.status === 0;
   },
 
-  foul: function () {
-    this.state.foul++;
+  commitFoul: function () {
+    this.foul++;
   },
 
   clear: function () {
-    this.state.status = 0;
-    this.state.foul = 0;
-    this.state.hit = [];
-    this.state.activeHit = [];
-    this.state.hitBy = [];
+    this.status = 0;
+    this.foul = 0;
+    this.hits = [];
+    this.activeHits = [];
+    this.hitBy = [];
   }
 };
 

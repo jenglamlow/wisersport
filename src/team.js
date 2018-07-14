@@ -1,33 +1,25 @@
 const Ball = require('./ball');
 
 let Team = function (name, color, num = 7) {
-  this.ball = [];
-  const ballState = [];
+  const balls = [];
 
   // Initialize Ball Object
   for (let i = 0; i < num; i++) {
     let b = new Ball(color, i + 1);
-    this.ball.push(b);
-    ballState.push(b.state);
+    balls.push(b);
   }
 
-  this.state = {
-    name: name,
-    color: color,
-    score: 0,
-    balls: ballState
-  };
+  this.name = name;
+  this.color = color;
+  this.score = 0;
+  this.balls = balls;
 };
 
 Team.prototype = {
-  info: function () {
-    return this.state;
-  },
-
   clear: function () {
-    this.state.score = 0;
+    this.score = 0;
 
-    this.ball.forEach(item => {
+    this.balls.forEach(item => {
       item.clear();
     });
   }
