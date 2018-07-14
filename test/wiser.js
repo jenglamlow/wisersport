@@ -63,7 +63,35 @@ describe('Wiser Game', function () {
     });
 
     it('Normal Hit', function () {
+      // First Lock
       wiser.process('r1w1');
+
+      expect(wiser.state.red.balls[0].hit).to.have.ordered.members(['w1']);
+      expect(wiser.state.red.balls[0].activeHit).to.have.ordered.members(['w1']);
+
+      expect(wiser.state.white.balls[0].hitBy).to.have.ordered.members(['r1']);
+      expect(wiser.state.white.balls[0].status).to.equal(1);
+
+      // Second Lock
+      wiser.process('r2w1');
+
+      expect(wiser.state.red.balls[1].hit).to.have.ordered.members(['w1']);
+      expect(wiser.state.red.balls[1].activeHit).to.have.ordered.members(['w1']);
+
+      expect(wiser.state.white.balls[0].hitBy).to.have.ordered.members(['r1', 'r2']);
+      expect(wiser.state.white.balls[0].status).to.equal(2);
+
+      // Strike Out
+      wiser.process('r1w1');
+
+      expect(wiser.state.red.balls[0].hit).to.have.ordered.members(['w1', 'w1']);
+      expect(wiser.state.red.balls[0].activeHit).to.have.ordered.members(['w1', 'w1']);
+
+      expect(wiser.state.white.balls[0].hitBy).to.have.ordered.members(['r1', 'r2', 'r1']);
+      expect(wiser.state.white.balls[0].status).to.equal(3);
+
+      // Hit the eliminated ball again should trigger error
+      expect(function () { wiser.process('r1w1'); }).to.be.throw('Already eliminated!');
     });
   });
 });

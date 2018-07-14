@@ -26,11 +26,11 @@
     };
   };
 
-  // ==========================================================================
-  // Function
-  // ==========================================================================
-
   Wiser.prototype = {
+
+  // ==========================================================================
+  // Public Function
+  // ==========================================================================
     process: function (input) {
       // Check length
       if (input.length !== 4) {
@@ -73,7 +73,7 @@
           // Proper Hit
           if (s.team !== t.team) {
             this.team[s.team].ball[s.idx].hit(t.label);
-            console.log(this.state.white.balls);
+            const rescue = this.team[t.team].ball[t.idx].hitBy(s.label);
           }
         } else {
           throw new Error('The ball is not contesting ball, cannot attack');
