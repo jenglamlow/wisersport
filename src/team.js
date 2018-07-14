@@ -16,6 +16,22 @@ let Team = function (name, color, num = 7) {
 };
 
 Team.prototype = {
+  getTotalContesting: function () {
+    return this.balls.filter(item => item.status === 0).length;
+  },
+
+  getTotalFirstLock: function () {
+    return this.balls.filter(item => item.status === 1).length;
+  },
+
+  getTotalSecondLock: function () {
+    return this.balls.filter(item => item.status === 2).length;
+  },
+
+  getTotalEliminated: function () {
+    return this.balls.filter(item => item.status === 3).length;
+  },
+
   clear: function () {
     this.score = 0;
 

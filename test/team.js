@@ -32,6 +32,69 @@ describe('Team', function () {
 
       r.clear();
       expect(r.score).to.equal(0);
+      expect(r.getTotalContesting()).to.equal(7);
+    });
+  });
+
+  describe('Get Status', function () {
+    it('Contesting Ball', function () {
+      // Default value
+      let r = new Team('Red', 'r');
+
+      r.balls[0].getHitBy('w3');
+
+      expect(r.getTotalContesting()).to.equal(6);
+
+      r.balls[1].getHitBy('w3');
+
+      expect(r.getTotalContesting()).to.equal(5);
+    });
+
+    it('First Lock', function () {
+      // Default value
+      let r = new Team('Red', 'r');
+
+      r.balls[0].getHitBy('w3');
+
+      expect(r.getTotalFirstLock()).to.equal(1);
+
+      r.balls[1].getHitBy('w3');
+
+      expect(r.getTotalFirstLock()).to.equal(2);
+    });
+
+    it('Second Lock', function () {
+      // Default value
+      let r = new Team('Red', 'r');
+
+      r.balls[0].getHitBy('w3');
+
+      expect(r.getTotalFirstLock()).to.equal(1);
+
+      r.balls[0].getHitBy('w3');
+
+      expect(r.getTotalFirstLock()).to.equal(0);
+      expect(r.getTotalSecondLock()).to.equal(1);
+    });
+
+    it('Eliminated', function () {
+      // Default value
+      let r = new Team('Red', 'r');
+
+      r.balls[0].getHitBy('w3');
+
+      expect(r.getTotalFirstLock()).to.equal(1);
+
+      r.balls[0].getHitBy('w3');
+
+      expect(r.getTotalFirstLock()).to.equal(0);
+      expect(r.getTotalSecondLock()).to.equal(1);
+
+      r.balls[0].getHitBy('w3');
+
+      expect(r.getTotalFirstLock()).to.equal(0);
+      expect(r.getTotalSecondLock()).to.equal(0);
+      expect(r.getTotalEliminated()).to.equal(1);
     });
   });
 });
