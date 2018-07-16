@@ -70,7 +70,7 @@ describe('Ball', function () {
       expect(b.hitBy).to.have.ordered.members(['w7', 'w6', 'w5']);
 
       // Status capped at 3
-      expect(function () { b.getHitBy('w7'); }).to.be.throw('Already eliminated!');
+      expect(function () { b.getHitBy('w7'); }).to.be.throw('r7 is already eliminated!');
       expect(b.status).to.equal(3);
     });
 
@@ -132,14 +132,14 @@ describe('Ball', function () {
     });
 
     it('Contesting ball calling rescue should trigger error', function () {
-      expect(function () { b.rescue(); }).to.be.throw('It is not locked!');
+      expect(function () { b.rescue(); }).to.be.throw('r7 is not locked!');
     });
 
     it('Eliminated Ball cannot be rescue', function () {
       b.getHitBy('w6');
       b.getHitBy('w6');
       b.getHitBy('w6');
-      expect(function () { b.rescue(); }).to.be.throw('Already eliminated! Cannot be rescued');
+      expect(function () { b.rescue(); }).to.be.throw('r7 is already eliminated! Cannot be rescued');
     });
   });
 

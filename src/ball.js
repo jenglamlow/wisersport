@@ -9,8 +9,12 @@ let Ball = function (label) {
 
 Ball.prototype = {
   hit: function (ball) {
-    this.hits.push(ball);
-    this.activeHits.push(ball);
+    if (this.status === 0) {
+      this.hits.push(ball);
+      this.activeHits.push(ball);
+    } else {
+      throw new Error(this.label + ' is not contesting ball. Cannot hit!');
+    }
   },
 
   getHitBy: function (ball) {
@@ -25,7 +29,7 @@ Ball.prototype = {
         return null;
       }
     } else {
-      throw new Error('Already eliminated!');
+      throw new Error(this.label + ' is already eliminated!');
     }
   },
 
@@ -35,9 +39,9 @@ Ball.prototype = {
       this.hitBy.shift();
     } else {
       if (this.status === 3) {
-        throw new Error('Already eliminated! Cannot be rescued');
+        throw new Error(this.label + ' is already eliminated! Cannot be rescued');
       } else if (this.status === 0) {
-        throw new Error('It is not locked!');
+        throw new Error(this.label + ' is not locked!');
       }
     }
   },

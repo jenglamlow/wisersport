@@ -92,14 +92,14 @@ describe('Wiser Game', function () {
       expect(wiser.sequence).to.have.ordered.members(['r1w1', 'r2w1', 'r1w1']);
 
       // Hit the eliminated ball again should trigger error
-      expect(function () { wiser.process('r1w1'); }).to.be.throw('Already eliminated!');
+      expect(function () { wiser.process('r1w1'); }).to.be.throw('w1 is already eliminated!');
     });
 
     it('Ball cannot attack when it is not contesting ball', function () {
       // First Lock
       wiser.process('r1w1');
 
-      expect(function () { wiser.process('w1r2'); }).to.be.throw('The w1 is not contesting ball, cannot attack');
+      expect(function () { wiser.process('w1r2'); }).to.be.throw('w1 is not contesting ball. Cannot hit!');
     });
 
     it('Ball cannot hit eliminated ball', function () {
@@ -108,7 +108,7 @@ describe('Wiser Game', function () {
       wiser.process('r1w1');
       wiser.process('r1w1');
 
-      expect(function () { wiser.process('r1w1'); }).to.be.throw('Already eliminated!');
+      expect(function () { wiser.process('r1w1'); }).to.be.throw('w1 is already eliminated!');
     });
   });
 });

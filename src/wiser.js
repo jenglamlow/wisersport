@@ -61,17 +61,12 @@
           idx: parseInt(match[4]) - 1
         };
 
-        /* Check whether the ball is contesting ball */
-        if (this[s.team].balls[s.idx].isContesting()) {
-          // Proper Hit
-          if (s.team !== t.team) {
-            this[s.team].balls[s.idx].hit(t.label);
-            const rescue = this[t.team].balls[t.idx].getHitBy(s.label);
-          } else {
-            // Miss Hit
-          }
+        // Proper Hit
+        if (s.team !== t.team) {
+          this[s.team].balls[s.idx].hit(t.label);
+          const rescue = this[t.team].balls[t.idx].getHitBy(s.label);
         } else {
-          throw new Error('The ' + s.label + ' is not contesting ball, cannot attack');
+          // Miss Hit
         }
       } else {
         // Foul input action
