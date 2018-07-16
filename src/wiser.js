@@ -24,6 +24,13 @@
   // ==========================================================================
   // Public Function
   // ==========================================================================
+    rescue: function (ball) {
+      const team = ball[0];
+      const idx = parseInt(ball[1]) - 1;
+
+      this[team].balls[idx].rescue();
+    },
+
     process: function (input) {
       // Check length
       if (input.length !== 4) {
@@ -64,7 +71,26 @@
         // Proper Hit
         if (s.team !== t.team) {
           this[s.team].balls[s.idx].hit(t.label);
-          const rescue = this[t.team].balls[t.idx].getHitBy(s.label);
+          const rescueBall = this[t.team].balls[t.idx].getHitBy(s.label);
+
+          if (rescueBall) {
+            this.rescue(rescueBall);
+
+            // If the target ball eliminated, check any pending hit
+            // and transfer over to team pending active hits
+            if (this[t.team].balls[t.idx].isEliminated()) {
+              if (this[t.team].balls[t.idx].activeHits.length > 0) {
+                this[t.team].pendingActiveHits.push(...this[t.team].balls[t.idx].activeHits);
+                // this[t.team].balls[t.idx].removeActiveHits();
+              }
+            }
+          } else {
+            // Check any pending team pending active hits
+            if (this[t.team].pendingActiveHits.length > 0) {
+              const rescueBall = this[t.team].pendingActiveHits.shift();
+              this.rescue(rescueBall);
+            }
+          }
         } else {
           // Miss Hit
         }

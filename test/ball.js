@@ -67,6 +67,7 @@ describe('Ball', function () {
       b.getHitBy('w5');
       expect(b.status).to.equal(3);
       expect(b.isContesting()).to.be.false;
+      expect(b.isEliminated()).to.be.true;
       expect(b.hitBy).to.have.ordered.members(['w7', 'w6', 'w5']);
 
       // Status capped at 3

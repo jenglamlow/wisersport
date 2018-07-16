@@ -46,6 +46,14 @@ Ball.prototype = {
     }
   },
 
+  removeActiveHits: function () {
+    this.activeHits = [];
+  },
+
+  isEliminated: function () {
+    return this.status === 3;
+  },
+
   isContesting: function () {
     return this.status === 0;
   },

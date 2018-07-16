@@ -111,4 +111,71 @@ describe('Wiser Game', function () {
       expect(function () { wiser.process('r1w1'); }).to.be.throw('w1 is already eliminated!');
     });
   });
+
+  describe('Rescue', function () {
+    let wiser = new Wiser('Red', 'White');
+
+    beforeEach(function () {
+    // Clear internal state
+      wiser.clear();
+    });
+
+    it('Normal Rescue', function () {
+      // First Lock
+      wiser.process('r1w1');
+      expect(wiser.w.balls[0].status).to.equal(1);
+
+      wiser.process('w3r1');
+      expect(wiser.w.balls[0].status).to.equal(0);
+    });
+
+    it('Rescue Sequence', function () {
+      // First Lock
+      wiser.process('r1w1');
+      wiser.process('r2w1');
+      expect(wiser.w.balls[0].status).to.equal(2);
+      expect(wiser.w.balls[0].hitBy).to.have.ordered.members(['r1', 'r2']);
+
+      wiser.process('w3r1');
+      expect(wiser.w.balls[0].status).to.equal(1);
+      expect(wiser.w.balls[0].hitBy).to.have.ordered.members(['r2']);
+
+      wiser.process('w3r2');
+      expect(wiser.w.balls[0].status).to.equal(0);
+    });
+
+    it('Transer active hit list of eliminated ball to team pending active list', function () {
+      // First Lock
+      wiser.process('r1w1');
+      wiser.process('r1w1');
+      wiser.process('r1w2');
+      wiser.process('r1w3');
+      wiser.process('r1w2');
+      wiser.process('r1w3');
+      expect(wiser.r.balls[0].hits).to.have.ordered.members(['w1', 'w1', 'w2', 'w3', 'w2', 'w3']);
+
+      // R1 get eliminated
+      wiser.process('w4r1');
+      wiser.process('w4r1');
+      wiser.process('w4r1');
+      expect(wiser.r.pendingActiveHits).to.have.ordered.members(['w3', 'w2', 'w3']);
+
+      // Clear the ball active hit list first before the team active hit list
+      wiser.process('r5w7');
+      expect(wiser.w.balls[6].status).to.equal(1);
+      wiser.process('w4r5');
+      expect(wiser.w.balls[6].status).to.equal(0);
+
+      // Now only clear pending list
+      wiser.process('w4r5');
+      expect(wiser.r.pendingActiveHits).to.have.ordered.members(['w2', 'w3']);
+
+      wiser.process('w4r5');
+      expect(wiser.r.pendingActiveHits).to.have.ordered.members(['w3']);
+
+      // Hit another ball without no active hit list
+      wiser.process('w2r7');
+      expect(wiser.r.pendingActiveHits).to.be.an('array').that.is.empty;
+    });
+  });
 });
