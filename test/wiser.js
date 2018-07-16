@@ -222,7 +222,29 @@ describe('Wiser Game', function () {
     });
 
     it('Double Miss Hit', function () {
+      wiser.process('r1r2');
+      wiser.process('r3r2');
 
+      // Expect rescue order r2 -> r1 -> r2 -> r3
+      expect(wiser.w.pendingRescue).to.have.ordered.members(['r2m', 'r1m', 'r2m', 'r3m']);
+      expect(wiser.r.balls[1].status).to.equal(2);
+
+      // Start rescue order
+      wiser.process('r4w1');
+      expect(wiser.w.pendingRescue).to.have.ordered.members(['r1m', 'r2m', 'r3m']);
+      expect(wiser.r.balls[1].hitBy).to.have.ordered.members(['r3']);
+
+      wiser.process('r4w1');
+      expect(wiser.w.pendingRescue).to.have.ordered.members(['r2m', 'r3m']);
+      expect(wiser.r.balls[1].hitBy).to.have.ordered.members(['r3']);
+
+      wiser.process('r4w1');
+      expect(wiser.w.pendingRescue).to.have.ordered.members(['r3m']);
+      expect(wiser.r.balls[1].hitBy).to.be.an('array').that.is.empty;
+
+      wiser.process('r4w2');
+      expect(wiser.w.pendingRescue).to.be.an('array').that.is.empty;
+      expect(wiser.r.balls[1].hitBy).to.be.an('array').that.is.empty;
     });
   });
 });
