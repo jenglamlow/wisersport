@@ -144,7 +144,7 @@ describe('Wiser Game', function () {
       expect(wiser.w.balls[0].status).to.equal(0);
     });
 
-    it('Transer active hit list of eliminated ball to team pending active list', function () {
+    it('Transer active hit list of eliminated ball to team pending active hits', function () {
       // First Lock
       wiser.process('r1w1');
       wiser.process('r1w1');
@@ -158,7 +158,7 @@ describe('Wiser Game', function () {
       wiser.process('w4r1');
       wiser.process('w4r1');
       wiser.process('w4r1');
-      expect(wiser.r.pendingActiveHits).to.have.ordered.members(['w3', 'w2', 'w3']);
+      expect(wiser.r.pendingRescue).to.have.ordered.members(['w3', 'w2', 'w3']);
 
       // Clear the ball active hit list first before the team active hit list
       wiser.process('r5w7');
@@ -168,14 +168,61 @@ describe('Wiser Game', function () {
 
       // Now only clear pending list
       wiser.process('w4r5');
-      expect(wiser.r.pendingActiveHits).to.have.ordered.members(['w2', 'w3']);
+      expect(wiser.r.pendingRescue).to.have.ordered.members(['w2', 'w3']);
 
       wiser.process('w4r5');
-      expect(wiser.r.pendingActiveHits).to.have.ordered.members(['w3']);
+      expect(wiser.r.pendingRescue).to.have.ordered.members(['w3']);
 
       // Hit another ball without no active hit list
       wiser.process('w2r7');
-      expect(wiser.r.pendingActiveHits).to.be.an('array').that.is.empty;
+      expect(wiser.r.pendingRescue).to.be.an('array').that.is.empty;
+    });
+  });
+
+  describe('Miss Hit', function () {
+    let wiser = new Wiser('Red', 'White');
+
+    beforeEach(function () {
+    // Clear internal state
+      wiser.clear();
+    });
+
+    it('Normal Miss Hit', function () {
+      wiser.process('r1r2');
+      expect(wiser.w.pendingRescue).to.have.ordered.members(['r2m', 'r1m']);
+
+      // Rescue miss hit ball
+      wiser.process('r3w1');
+      expect(wiser.w.pendingRescue).to.have.ordered.members(['r1m']);
+      expect(wiser.r.balls[1].hitBy).to.be.an('array').that.is.empty;
+
+      wiser.process('r3w1');
+      expect(wiser.w.pendingRescue).to.be.an('array').that.is.empty;
+      expect(wiser.r.balls[0].hitBy).to.be.an('array').that.is.empty;
+    });
+
+    it('Miss Hit locked ball', function () {
+      wiser.process('w1r2');
+      wiser.process('r1r2');
+
+      // Rescue Miss Hit ball first if the target no active hit
+      wiser.process('r3w3');
+      expect(wiser.r.balls[1].hitBy).to.have.ordered.members(['w1']);
+      expect(wiser.w.pendingRescue).to.have.ordered.members(['r1m']);
+
+      // Rescue Miss Hit ball first if the target no active hit
+      wiser.process('r3w1');
+      expect(wiser.r.balls[1].hitBy).to.be.an('array').that.is.empty;
+      expect(wiser.w.pendingRescue).to.have.ordered.members(['r1m']);
+
+      // Rescue another miss hit if the target no active hit
+      wiser.process('r3w1');
+      expect(wiser.r.balls[1].hitBy).to.be.an('array').that.is.empty;
+      expect(wiser.w.pendingRescue).to.be.an('array').that.is.empty;
+    });
+
+    it('Double Miss Hit', function () {
+
     });
   });
 });

@@ -28,7 +28,12 @@
       const team = ball[0];
       const idx = parseInt(ball[1]) - 1;
 
-      this[team].balls[idx].rescue();
+      if (ball.length < 3) {
+        this[team].balls[idx].rescue();
+      } else {
+        // Rescue Miss Hit
+        this[team].balls[idx].rescueMissHit();
+      }
     },
 
     process: function (input) {
@@ -74,25 +79,33 @@
           const rescueBall = this[t.team].balls[t.idx].getHitBy(s.label);
 
           if (rescueBall) {
+            // If there is a rescue ball after hit
             this.rescue(rescueBall);
 
             // If the target ball eliminated, check any pending hit
             // and transfer over to team pending active hits
             if (this[t.team].balls[t.idx].isEliminated()) {
               if (this[t.team].balls[t.idx].activeHits.length > 0) {
-                this[t.team].pendingActiveHits.push(...this[t.team].balls[t.idx].activeHits);
+                this[t.team].pendingRescue.push(...this[t.team].balls[t.idx].activeHits);
                 // this[t.team].balls[t.idx].removeActiveHits();
               }
             }
           } else {
-            // Check any pending team pending active hits
-            if (this[t.team].pendingActiveHits.length > 0) {
-              const rescueBall = this[t.team].pendingActiveHits.shift();
+            // Check any pending team pending active hits or miss hits rescue
+            if (this[t.team].pendingRescue.length > 0) {
+              const rescueBall = this[t.team].pendingRescue.shift();
               this.rescue(rescueBall);
             }
           }
         } else {
-          // Miss Hit
+          // Miss Hit save target first
+          this[s.team].balls[s.idx].missHit(t.label);
+          this[t.team].balls[t.idx].getMissHitBy(s.label);
+
+          // Store the rescue order in opponet pending list
+          const opponent = t.team === 'r' ? 'w' : 'r';
+          this[opponent].pendingRescue.push(t.label + 'm');
+          this[opponent].pendingRescue.push(s.label + 'm');
         }
       } else {
         // Foul input action

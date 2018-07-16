@@ -13,7 +13,7 @@ let Team = function (name, color, num = 7) {
   this.color = color;
   this.score = 0;
   this.balls = balls;
-  this.pendingActiveHits = [];
+  this.pendingRescue = [];
 };
 
 Team.prototype = {
@@ -35,7 +35,7 @@ Team.prototype = {
 
   clear: function () {
     this.score = 0;
-    this.pendingActiveHits = [];
+    this.pendingRescue = [];
 
     this.balls.forEach(item => {
       item.clear();
