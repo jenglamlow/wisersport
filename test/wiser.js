@@ -179,7 +179,7 @@ describe('Wiser Game', function () {
     });
   });
 
-  describe('Miss Hit', function () {
+  describe('Miss Hit Malaysia Rule', function () {
     let wiser = new Wiser('Red', 'White');
 
     beforeEach(function () {
@@ -245,6 +245,38 @@ describe('Wiser Game', function () {
       wiser.process('r4w2');
       expect(wiser.w.pendingRescue).to.be.an('array').that.is.empty;
       expect(wiser.r.balls[1].hitBy).to.be.an('array').that.is.empty;
+    });
+  });
+
+  describe('Score', function () {
+    let wiser = new Wiser('Red', 'White');
+
+    beforeEach(function () {
+    // Clear internal state
+      wiser.clear();
+    });
+
+    it('Test Score', function () {
+      wiser.process('w1r2');
+
+      expect(wiser.w.score).to.equal(35);
+      expect(wiser.r.score).to.equal(32);
+
+      wiser.process('w1r2');
+      expect(wiser.w.score).to.equal(35);
+      expect(wiser.r.score).to.equal(31);
+
+      wiser.process('w1r2');
+      expect(wiser.w.score).to.equal(35);
+      expect(wiser.r.score).to.equal(30);
+
+      wiser.process('w1r3');
+      expect(wiser.w.score).to.equal(35);
+      expect(wiser.r.score).to.equal(27);
+
+      // wiser.process('r1w1');
+      // expect(wiser.w.score).to.equal(35);
+      // expect(wiser.r.score).to.equal(30);
     });
   });
 });

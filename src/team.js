@@ -11,7 +11,7 @@ let Team = function (name, color, num = 7) {
 
   this.name = name;
   this.color = color;
-  this.score = 0;
+  this.score = balls.length * 5;
   this.balls = balls;
   this.pendingRescue = [];
 };
@@ -34,7 +34,7 @@ Team.prototype = {
   },
 
   clear: function () {
-    this.score = 0;
+    this.score = this.balls.length * 5;
     this.pendingRescue = [];
 
     this.balls.forEach(item => {

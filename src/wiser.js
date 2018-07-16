@@ -36,6 +36,17 @@
       }
     },
 
+    updateScore: function () {
+      const team = ['r', 'w'];
+
+      team.forEach(t => {
+        let total = this[t].getTotalContesting() * 5 +
+          this[t].getTotalFirstLock() * 2 +
+          this[t].getTotalSecondLock();
+        this[t].score = total;
+      });
+    },
+
     process: function (input) {
       // Check length
       if (input.length !== 4) {
@@ -110,6 +121,9 @@
       } else {
         // Foul input action
       }
+
+      // Update score
+      this.updateScore();
 
       this.sequence.push(input);
     },

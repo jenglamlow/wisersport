@@ -31,7 +31,7 @@ describe('Team', function () {
       r.balls[0].hit('w3');
 
       r.clear();
-      expect(r.score).to.equal(0);
+      expect(r.score).to.equal(35);
       expect(r.getTotalContesting()).to.equal(7);
     });
   });
