@@ -89,6 +89,11 @@
           this[s.team].balls[s.idx].hit(t.label);
           const rescueBall = this[t.team].balls[t.idx].getHitBy(s.label);
 
+          // If the target is eliminated, remove the target from active hit list
+          if (this[t.team].balls[t.idx].isEliminated()) {
+            this[s.team].balls[s.idx].removeActiveTargetHit(t.label);
+          }
+
           if (rescueBall) {
             // If there is a rescue ball after hit
             this.rescue(rescueBall);
@@ -98,7 +103,6 @@
             if (this[t.team].balls[t.idx].isEliminated()) {
               if (this[t.team].balls[t.idx].activeHits.length > 0) {
                 this[t.team].pendingRescue.push(...this[t.team].balls[t.idx].activeHits);
-                // this[t.team].balls[t.idx].removeActiveHits();
               }
             }
           } else {
@@ -115,7 +119,9 @@
 
           // Store the rescue order in opponet pending list
           const opponent = t.team === 'r' ? 'w' : 'r';
-          this[opponent].pendingRescue.push(t.label + 'm');
+          if (!this[t.team].balls[t.idx].isEliminated()) {
+            this[opponent].pendingRescue.push(t.label + 'm');
+          }
           this[opponent].pendingRescue.push(s.label + 'm');
         }
       } else {

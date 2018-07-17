@@ -246,6 +246,14 @@ describe('Wiser Game', function () {
       expect(wiser.w.pendingRescue).to.be.an('array').that.is.empty;
       expect(wiser.r.balls[1].hitBy).to.be.an('array').that.is.empty;
     });
+
+    it('Miss Hit eliminated the locked ball', function () {
+      wiser.process('w1r2');
+      wiser.process('w1r2');
+      wiser.process('r3r2');
+
+      expect(wiser.w.pendingRescue).to.have.ordered.members(['r3m']);
+    });
   });
 
   describe('Score', function () {
@@ -274,9 +282,13 @@ describe('Wiser Game', function () {
       expect(wiser.w.score).to.equal(35);
       expect(wiser.r.score).to.equal(27);
 
-      // wiser.process('r1w1');
-      // expect(wiser.w.score).to.equal(35);
-      // expect(wiser.r.score).to.equal(30);
+      wiser.process('r1w1');
+      expect(wiser.w.score).to.equal(32);
+      expect(wiser.r.score).to.equal(30);
+
+      wiser.process('w7r1');
+      expect(wiser.w.score).to.equal(35);
+      expect(wiser.r.score).to.equal(27);
     });
   });
 });

@@ -72,8 +72,8 @@ Ball.prototype = {
     }
   },
 
-  removeActiveHits: function () {
-    this.activeHits = [];
+  removeActiveTargetHit: function (target) {
+    this.activeHits = this.activeHits.filter(item => item !== target);
   },
 
   isEliminated: function () {
