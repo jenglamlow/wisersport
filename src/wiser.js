@@ -150,7 +150,6 @@
           if (!this[t.team].balls[t.idx].isEliminated()) {
             this[opponent].pendingRescue.push(t.label + 'm');
           }
-          this[opponent].pendingRescue.push(s.label + 'm');
         }
       } else {
         // Foul input action

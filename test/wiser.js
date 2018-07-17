@@ -233,16 +233,14 @@ describe('Wiser Game', function () {
 
     it('Normal Miss Hit', function () {
       wiser.process('r1r2');
-      expect(wiser.w.pendingRescue).to.have.ordered.members(['r2m', 'r1m']);
+      expect(wiser.w.pendingRescue).to.have.ordered.members(['r2m']);
+      expect(wiser.r.balls[0].isEliminated()).to.be.true;
 
       // Rescue miss hit ball
       wiser.process('r3w1');
-      expect(wiser.w.pendingRescue).to.have.ordered.members(['r1m']);
-      expect(wiser.r.balls[1].hitBy).to.be.an('array').that.is.empty;
-
-      wiser.process('r3w1');
       expect(wiser.w.pendingRescue).to.be.an('array').that.is.empty;
       expect(wiser.r.balls[0].hitBy).to.be.an('array').that.is.empty;
+      expect(wiser.r.balls[1].isContesting()).to.be.true;
     });
 
     it('Miss Hit locked ball', function () {
@@ -252,14 +250,8 @@ describe('Wiser Game', function () {
       // Rescue Miss Hit ball first if the target no active hit
       wiser.process('r3w3');
       expect(wiser.r.balls[1].hitBy).to.have.ordered.members(['w1']);
-      expect(wiser.w.pendingRescue).to.have.ordered.members(['r1m']);
+      expect(wiser.r.balls[0].isEliminated()).to.be.true;
 
-      // Rescue Miss Hit ball first if the target no active hit
-      wiser.process('r3w1');
-      expect(wiser.r.balls[1].hitBy).to.be.an('array').that.is.empty;
-      expect(wiser.w.pendingRescue).to.have.ordered.members(['r1m']);
-
-      // Rescue another miss hit if the target no active hit
       wiser.process('r3w1');
       expect(wiser.r.balls[1].hitBy).to.be.an('array').that.is.empty;
       expect(wiser.w.pendingRescue).to.be.an('array').that.is.empty;
@@ -269,26 +261,18 @@ describe('Wiser Game', function () {
       wiser.process('r1r2');
       wiser.process('r3r2');
 
-      // Expect rescue order r2 -> r1 -> r2 -> r3
-      expect(wiser.w.pendingRescue).to.have.ordered.members(['r2m', 'r1m', 'r2m', 'r3m']);
+      expect(wiser.w.pendingRescue).to.have.ordered.members(['r2m', 'r2m']);
       expect(wiser.r.balls[1].status).to.equal(2);
+      expect(wiser.r.balls[0].isEliminated()).to.be.true;
+      expect(wiser.r.balls[2].isEliminated()).to.be.true;
 
       // Start rescue order
       wiser.process('r4w1');
-      expect(wiser.w.pendingRescue).to.have.ordered.members(['r1m', 'r2m', 'r3m']);
-      expect(wiser.r.balls[1].hitBy).to.have.ordered.members(['r3']);
+      expect(wiser.w.pendingRescue).to.have.ordered.members(['r2m']);
 
       wiser.process('r4w1');
-      expect(wiser.w.pendingRescue).to.have.ordered.members(['r2m', 'r3m']);
-      expect(wiser.r.balls[1].hitBy).to.have.ordered.members(['r3']);
-
-      wiser.process('r4w1');
-      expect(wiser.w.pendingRescue).to.have.ordered.members(['r3m']);
-      expect(wiser.r.balls[1].hitBy).to.be.an('array').that.is.empty;
-
-      wiser.process('r4w2');
       expect(wiser.w.pendingRescue).to.be.an('array').that.is.empty;
-      expect(wiser.r.balls[1].hitBy).to.be.an('array').that.is.empty;
+      expect(wiser.r.balls[1].isContesting()).to.be.true;
     });
 
     it('Miss Hit eliminated the locked ball', function () {
@@ -296,18 +280,20 @@ describe('Wiser Game', function () {
       wiser.process('w1r2');
       wiser.process('r3r2');
 
-      expect(wiser.w.pendingRescue).to.have.ordered.members(['r3m']);
+      expect(wiser.w.pendingRescue).to.be.an('array').that.is.empty;
+      expect(wiser.r.balls[2].isEliminated()).to.be.true;
       expect(wiser.r.balls[1].isEliminated()).to.be.true;
     });
 
-    it('Miss Hit hit the ball with active hits', function () {
+    it('Miss Hit the ball with active hits', function () {
       wiser.process('r1w2');
       wiser.process('r1w3');
       wiser.process('r4r1');
 
       // Miss Hit the ball with active hits should not rescue the other team
+      expect(wiser.r.balls[3].isEliminated()).to.be.true;
       expect(wiser.r.balls[0].activeHits).to.have.ordered.members(['w2', 'w3']);
-      expect(wiser.w.pendingRescue).to.have.ordered.members(['r1m', 'r4m']);
+      expect(wiser.w.pendingRescue).to.have.ordered.members(['r1m']);
       expect(wiser.w.balls[1].status).to.equal(1);
       expect(wiser.w.balls[2].status).to.equal(1);
 
@@ -321,7 +307,7 @@ describe('Wiser Game', function () {
       expect(wiser.r.balls[0].activeHits).to.be.an('array').that.is.empty;
       expect(wiser.w.balls[1].status).to.equal(0);
       expect(wiser.w.balls[2].status).to.equal(0);
-      expect(wiser.w.pendingRescue).to.have.ordered.members(['r4m']);
+      expect(wiser.w.pendingRescue).to.be.an('array').that.is.empty;
     });
   });
 

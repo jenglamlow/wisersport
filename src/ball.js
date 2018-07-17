@@ -84,7 +84,7 @@ Ball.prototype = {
     return this.status === 0;
   },
 
-  missHit: function (target, penalty = 1) {
+  missHit: function (target, penalty = 3) {
     if (this.status === 0) {
       this.status += penalty;
       this.hits.push(target);
