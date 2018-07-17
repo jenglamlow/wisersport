@@ -33,6 +33,10 @@ Team.prototype = {
     return this.balls.filter(item => item.status === 3).length;
   },
 
+  removePendingRescueTarget: function (target) {
+    this.pendingRescue = this.pendingRescue.filter(item => item !== target);
+  },
+
   clear: function () {
     this.score = this.balls.length * 5;
     this.pendingRescue = [];

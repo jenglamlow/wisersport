@@ -92,6 +92,10 @@
           // If the target is eliminated, remove the target from active hit list
           if (this[t.team].balls[t.idx].isEliminated()) {
             this[s.team].balls[s.idx].removeActiveTargetHit(t.label);
+
+            // Remove pending rescue as well for eliminated ball and miss hit ball
+            this[s.team].removePendingRescueTarget(t.label);
+            this[s.team].removePendingRescueTarget(t.label + 'm');
           }
 
           if (rescueBall) {

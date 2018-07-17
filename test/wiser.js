@@ -177,6 +177,25 @@ describe('Wiser Game', function () {
       wiser.process('w2r7');
       expect(wiser.r.pendingRescue).to.be.an('array').that.is.empty;
     });
+
+    it('Remove eliminated ball from Pending Rescue list', function () {
+      wiser.process('r1w1');
+      wiser.process('r1w1');
+      wiser.process('r1w2');
+      wiser.process('r1w3');
+      wiser.process('r1w2');
+      wiser.process('r1w3');
+
+      // R1 get eliminated
+      wiser.process('w4r1');
+      wiser.process('w4r1');
+      wiser.process('w4r1');
+      expect(wiser.r.pendingRescue).to.have.ordered.members(['w3', 'w2', 'w3']);
+
+      // W3 is eliminated
+      wiser.process('r6w3');
+      expect(wiser.r.pendingRescue).to.have.ordered.members(['w2']);
+    });
   });
 
   describe('Miss Hit Malaysia Rule', function () {
@@ -253,6 +272,31 @@ describe('Wiser Game', function () {
       wiser.process('r3r2');
 
       expect(wiser.w.pendingRescue).to.have.ordered.members(['r3m']);
+      expect(wiser.r.balls[1].isEliminated()).to.be.true;
+    });
+
+    it('Miss Hit hit the ball with active hits', function () {
+      wiser.process('r1w2');
+      wiser.process('r1w3');
+      wiser.process('r4r1');
+
+      // Miss Hit the ball with active hits should not rescue the other team
+      expect(wiser.r.balls[0].activeHits).to.have.ordered.members(['w2', 'w3']);
+      expect(wiser.w.pendingRescue).to.have.ordered.members(['r1m', 'r4m']);
+      expect(wiser.w.balls[1].status).to.equal(1);
+      expect(wiser.w.balls[2].status).to.equal(1);
+
+      wiser.process('w7r1');
+
+      expect(wiser.r.balls[0].activeHits).to.have.ordered.members(['w3']);
+      expect(wiser.w.balls[1].status).to.equal(0);
+      expect(wiser.w.balls[2].status).to.equal(1);
+
+      wiser.process('w7r1');
+      expect(wiser.r.balls[0].activeHits).to.be.an('array').that.is.empty;
+      expect(wiser.w.balls[1].status).to.equal(0);
+      expect(wiser.w.balls[2].status).to.equal(0);
+      expect(wiser.w.pendingRescue).to.have.ordered.members(['r4m']);
     });
   });
 
