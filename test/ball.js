@@ -144,15 +144,6 @@ describe('Ball', function () {
     });
   });
 
-  describe('Miss Hit', function () {
-    const b = new Ball('r7');
-
-    it('Miss Hit check', function () {
-      // expect(function () { b.missHit(); }).to.be.throw('r7 is not contesting ball. Cannot missHit!');
-      // b.missHit('r4');
-    });
-  });
-
   describe('Foul', function () {
     const b = new Ball('r7');
 

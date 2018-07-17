@@ -20,10 +20,6 @@
   };
 
   Wiser.prototype = {
-
-  // ==========================================================================
-  // Public Function
-  // ==========================================================================
     rescue: function (ball) {
       const team = ball[0];
       const idx = parseInt(ball[1]) - 1;
@@ -34,6 +30,7 @@
         // Rescue Miss Hit
         this[team].balls[idx].rescueMissHit();
       }
+      this.nullify('rescue', ball);
     },
 
     updateScore: function () {
@@ -47,6 +44,23 @@
       });
     },
 
+    nullify: function (mode, target) {
+      const validSequence = this.sequence.filter(item => item.nullify === false);
+
+      if (mode === 'rescue') {
+        // const seq = validSequence.filter(item => item.action.indexOf(target.slice(0, 2)) !== -1);
+        // seq[0].nullify = true;
+      } else if (mode === 'eliminate') {
+        // const seq = validSequence.filter(item => item.action.indexOf(target.slice(0, 2)) !== -1);
+        // seq[0].nullify = true;
+        // seq[1].nullify = true;
+        // seq[2].nullify = true;
+      }
+    },
+
+    // ==========================================================================
+    // Public Function
+    // ==========================================================================
     process: function (input) {
       // Check length
       if (input.length !== 4) {
@@ -69,6 +83,13 @@
         }
         mode = 'f';
       }
+
+      const seq = {
+        action: input,
+        nullify: false
+      };
+
+      this.sequence.push(seq);
 
       const s = {
         label: match[1] + match[2],
@@ -96,6 +117,9 @@
             // Remove pending rescue as well for eliminated ball and miss hit ball
             this[s.team].removePendingRescueTarget(t.label);
             this[s.team].removePendingRescueTarget(t.label + 'm');
+
+            // Nullify eliminated sequence
+            this.nullify('eliminate', t.label);
           }
 
           if (rescueBall) {
@@ -134,8 +158,6 @@
 
       // Update score
       this.updateScore();
-
-      this.sequence.push(input);
     },
 
     clear: function () {

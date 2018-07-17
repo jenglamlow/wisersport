@@ -79,17 +79,42 @@ describe('Wiser Game', function () {
       // First Lock
       wiser.process('r1w1');
 
-      expect(wiser.sequence).to.have.ordered.members(['r1w1']);
+      expect(wiser.sequence).to.have.deep.ordered.members([{
+        action: 'r1w1',
+        nullify: false
+      }]);
 
       // Second Lock
       wiser.process('r2w1');
 
-      expect(wiser.sequence).to.have.ordered.members(['r1w1', 'r2w1']);
+      expect(wiser.sequence).to.have.deep.ordered.members([
+        {
+          action: 'r1w1',
+          nullify: false
+        },
+        {
+          action: 'r2w1',
+          nullify: false
+        }
+      ]);
 
       // Strike Out
       wiser.process('r1w1');
 
-      expect(wiser.sequence).to.have.ordered.members(['r1w1', 'r2w1', 'r1w1']);
+      expect(wiser.sequence).to.have.deep.ordered.members([
+        {
+          action: 'r1w1',
+          nullify: false
+        },
+        {
+          action: 'r2w1',
+          nullify: false
+        },
+        {
+          action: 'r1w1',
+          nullify: false
+        }
+      ]);
 
       // Hit the eliminated ball again should trigger error
       expect(function () { wiser.process('r1w1'); }).to.be.throw('w1 is already eliminated!');
@@ -198,7 +223,7 @@ describe('Wiser Game', function () {
     });
   });
 
-  describe('Miss Hit Malaysia Rule', function () {
+  describe('Miss Hit Rule', function () {
     let wiser = new Wiser('Red', 'White');
 
     beforeEach(function () {
