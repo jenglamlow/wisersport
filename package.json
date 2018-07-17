@@ -1,6 +1,6 @@
 {
   "name": "wisersport",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "Wiser Sport core engine",
   "main": "index.js",
   "scripts": {
