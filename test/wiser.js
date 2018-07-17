@@ -104,15 +104,15 @@ describe('Wiser Game', function () {
       expect(wiser.sequence).to.have.deep.ordered.members([
         {
           action: 'r1w1',
-          nullify: false
+          nullify: true
         },
         {
           action: 'r2w1',
-          nullify: false
+          nullify: true
         },
         {
           action: 'r1w1',
-          nullify: false
+          nullify: true
         }
       ]);
 
@@ -344,6 +344,130 @@ describe('Wiser Game', function () {
       wiser.process('w7r1');
       expect(wiser.w.score).to.equal(35);
       expect(wiser.r.score).to.equal(27);
+
+      // Miss Hit
+      wiser.process('w5w6');
+      expect(wiser.w.score).to.equal(27);
+      expect(wiser.r.score).to.equal(27);
+    });
+  });
+
+  describe('Nullify Sequence', function () {
+    let wiser = new Wiser('Red', 'White');
+
+    beforeEach(function () {
+    // Clear internal state
+      wiser.clear();
+    });
+
+    it('Rescue', function () {
+      wiser.process('r1w1');
+      wiser.process('w2r1');
+
+      expect(wiser.sequence).to.have.deep.ordered.members([
+        {
+          action: 'r1w1',
+          nullify: true
+        },
+        {
+          action: 'w2r1',
+          nullify: false
+        }
+      ]);
+    });
+
+    it('Eliminated', function () {
+      wiser.process('r1w1');
+      wiser.process('r1w1');
+      wiser.process('r1w1');
+
+      expect(wiser.sequence).to.have.deep.ordered.members([
+        {
+          action: 'r1w1',
+          nullify: true
+        },
+        {
+          action: 'r1w1',
+          nullify: true
+        },
+        {
+          action: 'r1w1',
+          nullify: true
+        }
+      ]);
+    });
+
+    it('Miss Hit Rescue', function () {
+      wiser.process('r1r2');
+      wiser.process('r3w1');
+
+      expect(wiser.sequence).to.have.deep.ordered.members([
+        {
+          action: 'r1r2',
+          nullify: true
+        },
+        {
+          action: 'r3w1',
+          nullify: false
+        }
+      ]);
+    });
+
+    it('Pending Rescue', function () {
+      wiser.process('r1w1');
+      wiser.process('r1w1');
+      wiser.process('r1w2');
+      wiser.process('r1w3');
+      wiser.process('r1w2');
+      wiser.process('r1w3');
+
+      expect(wiser.sequence).to.have.deep.ordered.members([
+        {
+          action: 'r1w1',
+          nullify: false
+        },
+        {
+          action: 'r1w1',
+          nullify: false
+        },
+        {
+          action: 'r1w2',
+          nullify: false
+        },
+        {
+          action: 'r1w3',
+          nullify: false
+        },
+        {
+          action: 'r1w2',
+          nullify: false
+        },
+        {
+          action: 'r1w3',
+          nullify: false
+        }
+      ]);
+
+      // R1 get eliminated
+      wiser.process('w4r1');
+      wiser.process('w4r1');
+      wiser.process('w4r1');
+
+      let seq = wiser.sequence.filter(s => s.nullify === true).map(s => s.action);
+      expect(seq).to.have.ordered.members(['r1w1', 'r1w1', 'r1w2', 'w4r1', 'w4r1', 'w4r1']);
+
+      wiser.process('w4r2');
+      seq = wiser.sequence.filter(s => s.nullify === true).map(s => s.action);
+      expect(seq).to.have.ordered.members(['r1w1', 'r1w1', 'r1w2', 'r1w3', 'w4r1', 'w4r1', 'w4r1']);
+
+      wiser.process('w4r2');
+      seq = wiser.sequence.filter(s => s.nullify === true).map(s => s.action);
+      expect(seq).to.have.ordered.members(['r1w1', 'r1w1', 'r1w2', 'r1w3', 'r1w2', 'w4r1', 'w4r1', 'w4r1']);
+
+      // Should nullify all other actions
+      wiser.process('w4r2');
+      seq = wiser.sequence.filter(s => s.nullify === false).map(s => s.action);
+      expect(seq).to.be.an('array').that.is.empty;
     });
   });
 });

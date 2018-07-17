@@ -45,16 +45,16 @@
     },
 
     nullify: function (mode, target) {
-      const validSequence = this.sequence.filter(item => item.nullify === false);
+      const validSequence = this.sequence.filter(s => s.nullify === false);
 
       if (mode === 'rescue') {
-        // const seq = validSequence.filter(item => item.action.indexOf(target.slice(0, 2)) !== -1);
-        // seq[0].nullify = true;
+        const seq = validSequence.filter(s => s.action.indexOf(target.slice(0, 2)) !== -1);
+        seq[0].nullify = true;
       } else if (mode === 'eliminate') {
-        // const seq = validSequence.filter(item => item.action.indexOf(target.slice(0, 2)) !== -1);
-        // seq[0].nullify = true;
-        // seq[1].nullify = true;
-        // seq[2].nullify = true;
+        const seq = validSequence.filter(s => s.action.indexOf(target.slice(0, 2)) === 2);
+        seq[0].nullify = true;
+        seq[1].nullify = true;
+        seq[2].nullify = true;
       }
     },
 
