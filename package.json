@@ -4,7 +4,8 @@
   "description": "Wiser Sport core engine",
   "main": "index.js",
   "scripts": {
-    "test": "node_modules/.bin/mocha --reporter spec"
+    "test": "node_modules/.bin/mocha --reporter spec",
+    "cover": "node_modules/istanbul/lib/cli.js cover node_modules/mocha/bin/_mocha -- -R spec test/*"
   },
   "author": "Low Jeng Lam <jenglamlow@gmail.com>",
   "license": "MIT",
