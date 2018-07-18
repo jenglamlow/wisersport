@@ -16,6 +16,7 @@
   let Wiser = function (redName = 'Red', whiteName = 'White', num = 7) {
     this.r = new Team(redName, 'r', num);
     this.w = new Team(whiteName, 'w', num);
+    this.winner = null;
     this.sequence = [];
   };
 
@@ -41,6 +42,12 @@
           this[t].getTotalFirstLock() * 2 +
           this[t].getTotalSecondLock();
         this[t].score = total;
+
+        // Check whether there is a winner
+        if (this[t].getTotalContesting() === 0) {
+          // There is a winner
+          this.winner = (t === 'r') ? 'w' : 'r';
+        }
       });
     },
 
@@ -82,6 +89,11 @@
           throw new Error('Invalid input parameter');
         }
         mode = 'f';
+      }
+
+      // Check whether the match has winner
+      if (this.winner) {
+        throw new Error('The match already ended');
       }
 
       const seq = {
@@ -146,7 +158,7 @@
           this[t.team].balls[t.idx].getMissHitBy(s.label);
 
           // Store the rescue order in opponet pending list
-          const opponent = t.team === 'r' ? 'w' : 'r';
+          const opponent = (t.team === 'r') ? 'w' : 'r';
           if (!this[t.team].balls[t.idx].isEliminated()) {
             this[opponent].pendingRescue.push(t.label + 'm');
           }

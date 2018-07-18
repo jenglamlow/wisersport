@@ -378,17 +378,31 @@ describe('Wiser Game', function () {
         }
       ]);
     });
+  });
 
-    it('Next Attack Invalid', function () {
-      wiser.process('w1fx');
-      // Expect sequence is nullified
-      expect(wiser.w.balls[0].foul).to.equal(1);
-      expect(wiser.sequence).to.have.deep.ordered.members([
-        {
-          action: 'w1fx',
-          nullify: false
-        }
-      ]);
+  describe('Winner', function () {
+    let wiser = new Wiser('Red', 'White');
+
+    beforeEach(function () {
+    // Clear internal state
+      wiser.clear();
+    });
+
+    it('End Game Detection', function () {
+      wiser.process('w1r1');
+      wiser.process('w1r2');
+      wiser.process('w1r3');
+      wiser.process('w1r4');
+      wiser.process('w1r5');
+      wiser.process('w1r6');
+      wiser.process('w1r7');
+
+      expect(wiser.winner).to.equal('w');
+
+      // Cannot accept any input once winner decided
+      expect(function () {
+        wiser.process('w1r7');
+      }).to.throw('The match already ended');
     });
   });
 
