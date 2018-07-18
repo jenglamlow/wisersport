@@ -1,5 +1,4 @@
-const Wiser = require('./src');
+const Wiser = require('./src/wiser');
+const Team = require('./src/team');
 
-const wiser = new Wiser('red', 'white');
-
-wiser.process('r1r2');
+const wiser = new Wiser('Red Team', 'White Team');
