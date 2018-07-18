@@ -67,7 +67,7 @@
         throw new Error('Input length must be length of 4');
       }
 
-      const re = /([rw])([t1-7])([frw])([mx1-7])/g;
+      const re = /([rw])([1-7])([frw])([mx1-7])/g;
       const match = re.exec(input);
 
       // Validate Input
@@ -78,7 +78,7 @@
       // Check whether is foul mode
       let mode = 'n';
       if (match[3] === 'f') {
-        if ((match[4] !== 'm') || (match[4] !== 'x')) {
+        if ((match[4] !== 'm') && (match[4] !== 'x')) {
           throw new Error('Invalid input parameter');
         }
         mode = 'f';
@@ -91,14 +91,14 @@
 
       this.sequence.push(seq);
 
-      const s = {
-        label: match[1] + match[2],
-        team: match[1],
-        idx: parseInt(match[2]) - 1
-      };
-
       if (mode === 'n') {
         // Normal input action
+        const s = {
+          label: match[1] + match[2],
+          team: match[1],
+          idx: parseInt(match[2]) - 1
+        };
+
         const t = {
           label: match[3] + match[4],
           team: match[3],
@@ -153,6 +153,24 @@
         }
       } else {
         // Foul input action
+        const s = {
+          label: match[1] + match[2],
+          team: match[1],
+          idx: parseInt(match[2]) - 1
+        };
+
+        const f = {
+          label: match[3] + match[4],
+          mode: match[3],
+          type: match[4]
+        };
+
+        if (f.type === 'm') {
+          // Miss Turn Foul, No penalty. Mark the last sequence nullify as true
+          this.sequence[this.sequence.length - 1].nullify = true;
+        } else if (f.type === 'x') {
+          // Next attack is invalid
+        }
       }
 
       // Update score

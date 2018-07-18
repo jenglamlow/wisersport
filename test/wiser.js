@@ -44,7 +44,7 @@ describe('Wiser Game', function () {
 
     it('input validation', function () {
       const errorMsg = 'Invalid input parameter';
-      const badInput = ['d1d2', 'r8w9', 'w0r9', 'k1r2', 'rtff', 'wtfs', 'rtf1'];
+      const badInput = ['d1d2', 'r8w9', 'w0r9', 'k1r2', 'r1ff', 'w1fs', 'r3f1'];
 
       for (const s of badInput) {
         expect(function () {
@@ -349,6 +349,33 @@ describe('Wiser Game', function () {
       wiser.process('w5w6');
       expect(wiser.w.score).to.equal(27);
       expect(wiser.r.score).to.equal(27);
+    });
+  });
+
+  describe('Foul', function () {
+    let wiser = new Wiser('Red', 'White');
+
+    beforeEach(function () {
+    // Clear internal state
+      wiser.clear();
+    });
+
+    it('Miss Turn foul', function () {
+      wiser.process('w1fm');
+      wiser.process('r1fm');
+
+      // Expect sequence is nullified
+      expect(wiser.sequence).to.have.deep.ordered.members([
+        {
+          action: 'w1fm',
+          nullify: true
+        },
+        {
+          action: 'r1fm',
+          nullify: true
+        }
+      ]);
+
     });
   });
 
