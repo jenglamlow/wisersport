@@ -166,11 +166,13 @@
         };
 
         if (f.type === 'm') {
-          // Miss Turn Foul, No penalty. Mark the last sequence nullify as true
+          // Miss Turn Foul, No penalty. Nullify the last seqeuence
           this.sequence[this.sequence.length - 1].nullify = true;
         } else if (f.type === 'x') {
-          // Next attack is invalid
+          // Count as attack or setting
         }
+
+        this[s.team].balls[s.idx].commitFoul();
       }
 
       // Update score

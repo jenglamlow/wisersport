@@ -365,6 +365,8 @@ describe('Wiser Game', function () {
       wiser.process('r1fm');
 
       // Expect sequence is nullified
+      expect(wiser.w.balls[0].foul).to.equal(1);
+      expect(wiser.r.balls[0].foul).to.equal(1);
       expect(wiser.sequence).to.have.deep.ordered.members([
         {
           action: 'w1fm',
@@ -375,7 +377,18 @@ describe('Wiser Game', function () {
           nullify: true
         }
       ]);
+    });
 
+    it('Next Attack Invalid', function () {
+      wiser.process('w1fx');
+      // Expect sequence is nullified
+      expect(wiser.w.balls[0].foul).to.equal(1);
+      expect(wiser.sequence).to.have.deep.ordered.members([
+        {
+          action: 'w1fx',
+          nullify: false
+        }
+      ]);
     });
   });
 
