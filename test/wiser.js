@@ -388,7 +388,7 @@ describe('Wiser Game', function () {
       wiser.clear();
     });
 
-    it('End Game Detection', function () {
+    it('White Team Winner', function () {
       wiser.process('w1r1');
       wiser.process('w1r2');
       wiser.process('w1r3');
@@ -398,6 +398,23 @@ describe('Wiser Game', function () {
       wiser.process('w1r7');
 
       expect(wiser.winner).to.equal('w');
+
+      // Cannot accept any input once winner decided
+      expect(function () {
+        wiser.process('w1r7');
+      }).to.throw('The match already ended');
+    });
+
+    it('Red Team Winner', function () {
+      wiser.process('r1w1');
+      wiser.process('r1w2');
+      wiser.process('r1w3');
+      wiser.process('r1w4');
+      wiser.process('r1w5');
+      wiser.process('r1w6');
+      wiser.process('r1w7');
+
+      expect(wiser.winner).to.equal('r');
 
       // Cannot accept any input once winner decided
       expect(function () {

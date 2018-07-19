@@ -38,17 +38,11 @@ Ball.prototype = {
       this.status--;
 
       // Look for first miss hit
-      let index = -1;
       for (let i in this.hitBy) {
         if (this.hitBy[i].match(new RegExp(this.label[0] + '[0-7]', 'g'))) {
-          index = i;
+          this.hitBy.splice(i, 1);
           break;
         }
-      }
-
-      // Remove the miss hit from hitBy array
-      if (index > -1) {
-        this.hitBy.splice(index, 1);
       }
     } else {
       if (this.status === 3) {
@@ -67,7 +61,8 @@ Ball.prototype = {
     } else {
       if (this.status === 3) {
         throw new Error(this.label + ' is already eliminated! Cannot be rescued');
-      } else if (this.status === 0) {
+      } else {
+        // It is contesting ball
         throw new Error(this.label + ' is not locked!');
       }
     }

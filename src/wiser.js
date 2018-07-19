@@ -57,7 +57,8 @@
       if (mode === 'rescue') {
         const seq = validSequence.filter(s => s.action.indexOf(target.slice(0, 2)) !== -1);
         seq[0].nullify = true;
-      } else if (mode === 'eliminate') {
+      } else {
+        // eliminate mode
         const seq = validSequence.filter(s => s.action.indexOf(target.slice(0, 2)) === 2);
         seq[0].nullify = true;
         seq[1].nullify = true;
@@ -177,10 +178,8 @@
           type: match[4]
         };
 
-        if (f.type === 'm') {
-          // Miss Turn Foul, No penalty. Nullify the last seqeuence
-          this.sequence[this.sequence.length - 1].nullify = true;
-        }
+        // Miss Turn Foul, No penalty. Nullify the last seqeuence
+        this.sequence[this.sequence.length - 1].nullify = true;
 
         this[s.team].balls[s.idx].commitFoul();
       }
@@ -191,6 +190,7 @@
 
     clear: function () {
       this.sequence = [];
+      this.winner = null;
       this.r.clear();
       this.w.clear();
     }
