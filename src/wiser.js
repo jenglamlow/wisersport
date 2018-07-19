@@ -1,6 +1,6 @@
 (function (root, factory) {
   'use strict';
-
+  /* istanbul ignore next */
   if (typeof define === 'function' && define.amd) {
     define([], factory);
   } else if (typeof module === 'object' && module.exports) {
@@ -180,8 +180,6 @@
         if (f.type === 'm') {
           // Miss Turn Foul, No penalty. Nullify the last seqeuence
           this.sequence[this.sequence.length - 1].nullify = true;
-        } else if (f.type === 'x') {
-          // Count as attack or setting
         }
 
         this[s.team].balls[s.idx].commitFoul();

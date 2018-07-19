@@ -53,7 +53,8 @@ Ball.prototype = {
     } else {
       if (this.status === 3) {
         throw new Error(this.label + ' is already eliminated! Cannot be rescued');
-      } else if (this.status === 0) {
+      } else {
+        // It is contesting ball
         throw new Error(this.label + ' is not locked!');
       }
     }
@@ -88,11 +89,6 @@ Ball.prototype = {
     if (this.status === 0) {
       this.status += penalty;
       this.hits.push(target);
-
-      // Capped at eliminated state
-      if (this.status > 3) {
-        this.status = 3;
-      }
     } else {
       throw new Error(this.label + ' is not contesting ball. Cannot missHit!');
     }

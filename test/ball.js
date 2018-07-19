@@ -142,6 +142,22 @@ describe('Ball', function () {
       b.getHitBy('w6');
       expect(function () { b.rescue(); }).to.be.throw('r7 is already eliminated! Cannot be rescued');
     });
+
+    it('Miss Hit', function () {
+      expect(function () { b.rescueMissHit(); }).to.be.throw('r7 is not locked!');
+
+      b.getMissHitBy('r6');
+
+      // Locked ball should not miss hit other ball
+      expect(function () { b.missHit('r2'); }).to.be.throw('r7 is not contesting ball. Cannot missHit!');
+
+      b.getHitBy('w6');
+      b.getHitBy('w6');
+      expect(function () { b.rescueMissHit(); }).to.be.throw('r7 is already eliminated! Cannot be rescued');
+
+      // Already eliminated then getmisshitby
+      expect(function () { b.getMissHitBy('r3'); }).to.be.throw('r7 is already eliminated!');
+    });
   });
 
   describe('Foul', function () {
