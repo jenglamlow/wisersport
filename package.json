@@ -2,7 +2,7 @@
   "name": "wisersport",
   "version": "0.1.1",
   "description": "Wiser Sport core engine",
-  "main": "index.js",
+  "main": "./src/index.js",
   "scripts": {
     "test": "node_modules/.bin/mocha --reporter spec",
     "cover": "node_modules/istanbul/lib/cli.js cover node_modules/mocha/bin/_mocha -- -R spec test/*"
