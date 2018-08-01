@@ -54,19 +54,29 @@ describe('Ball', function () {
     });
 
     it('Check hitBy list and status', function () {
+      expect(b.status).to.equal(0);
+      expect(b.isContesting()).to.be.true;
+      expect(b.isLocked()).to.be.false;
+      expect(b.isEliminated()).to.be.false;
+
       b.getHitBy('w7');
       expect(b.status).to.equal(1);
       expect(b.isContesting()).to.be.false;
+      expect(b.isLocked()).to.be.true;
+      expect(b.isEliminated()).to.be.false;
       expect(b.hitBy).to.have.ordered.members(['w7']);
 
       b.getHitBy('w6');
       expect(b.status).to.equal(2);
       expect(b.isContesting()).to.be.false;
+      expect(b.isLocked()).to.be.true;
+      expect(b.isEliminated()).to.be.false;
       expect(b.hitBy).to.have.ordered.members(['w7', 'w6']);
 
       b.getHitBy('w5');
       expect(b.status).to.equal(3);
       expect(b.isContesting()).to.be.false;
+      expect(b.isLocked()).to.be.false;
       expect(b.isEliminated()).to.be.true;
       expect(b.hitBy).to.have.ordered.members(['w7', 'w6', 'w5']);
 

@@ -80,6 +80,10 @@ Ball.prototype = {
     return this.status === 0;
   },
 
+  isLocked: function () {
+    return (this.status === 1 || this.status === 2);
+  },
+
   missHit: function (target, penalty = 3) {
     if (this.status === 0) {
       this.status += penalty;
