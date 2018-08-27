@@ -135,6 +135,10 @@ describe('Wiser Game', function () {
 
       expect(function () { wiser.process('r1w1'); }).to.be.throw('w1 is already eliminated!');
     });
+
+    it('Ball cannot hit ownself', function () {
+      expect(function () { wiser.process('r1r1'); }).to.be.throw('Cannot hit ownself!');
+    });
   });
 
   describe('Rescue', function () {

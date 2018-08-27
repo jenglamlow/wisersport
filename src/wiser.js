@@ -154,6 +154,10 @@
             }
           }
         } else {
+          // Check whether it is hit ownself
+          if ((s.team === t.team) && (s.idx === t.idx)) {
+            throw new Error('Cannot hit ownself!');
+          }
           // Miss Hit save target first
           this[s.team].balls[s.idx].missHit(t.label);
           this[t.team].balls[t.idx].getMissHitBy(s.label);
