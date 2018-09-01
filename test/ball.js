@@ -159,7 +159,7 @@ describe('Ball', function () {
       b.getMissHitBy('r6');
 
       // Locked ball should not miss hit other ball
-      expect(function () { b.missHit('r2'); }).to.be.throw('r7 is not contesting ball. Cannot missHit!');
+      expect(function () { b.missHit('r2'); }).to.be.throw('r7 is not contesting ball. Cannot miss-hit!');
 
       b.getHitBy('w6');
       b.getHitBy('w6');

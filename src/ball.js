@@ -89,7 +89,7 @@ Ball.prototype = {
       this.status += penalty;
       this.hits.push(target);
     } else {
-      throw new Error(this.label + ' is not contesting ball. Cannot missHit!');
+      throw new Error(this.label + ' is not contesting ball. Cannot miss-hit!');
     }
   },
 

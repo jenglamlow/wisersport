@@ -103,93 +103,98 @@
       };
 
       this.sequence.push(seq);
-
-      if (mode === 'n') {
+      try {
+        if (mode === 'n') {
         // Normal input action
-        const s = {
-          label: match[1] + match[2],
-          team: match[1],
-          idx: parseInt(match[2]) - 1
-        };
+          const s = {
+            label: match[1] + match[2],
+            team: match[1],
+            idx: parseInt(match[2]) - 1
+          };
 
-        const t = {
-          label: match[3] + match[4],
-          team: match[3],
-          idx: parseInt(match[4]) - 1
-        };
+          const t = {
+            label: match[3] + match[4],
+            team: match[3],
+            idx: parseInt(match[4]) - 1
+          };
 
-        // Proper Hit
-        if (s.team !== t.team) {
-          this[s.team].balls[s.idx].hit(t.label);
-          const rescueBall = this[t.team].balls[t.idx].getHitBy(s.label);
+          // Proper Hit
+          if (s.team !== t.team) {
+            this[s.team].balls[s.idx].hit(t.label);
+            const rescueBall = this[t.team].balls[t.idx].getHitBy(s.label);
 
-          // If the target is eliminated, remove the target from active hit list
-          if (this[t.team].balls[t.idx].isEliminated()) {
-            this[s.team].balls[s.idx].removeActiveTargetHit(t.label);
-
-            // Remove pending rescue as well for eliminated ball and miss hit ball
-            this[s.team].removePendingRescueTarget(t.label);
-            this[s.team].removePendingRescueTarget(t.label + 'm');
-
-            // Nullify eliminated sequence
-            this.nullify('eliminate', t.label);
-          }
-
-          if (rescueBall) {
-            // If there is a rescue ball after hit
-            this.rescue(rescueBall);
-
-            // If the target ball eliminated, check any pending hit
-            // and transfer over to team pending active hits
+            // If the target is eliminated, remove the target from active hit list
             if (this[t.team].balls[t.idx].isEliminated()) {
-              if (this[t.team].balls[t.idx].activeHits.length > 0) {
-                this[t.team].pendingRescue.push(...this[t.team].balls[t.idx].activeHits);
+              this[s.team].balls[s.idx].removeActiveTargetHit(t.label);
+
+              // Remove pending rescue as well for eliminated ball and miss hit ball
+              this[s.team].removePendingRescueTarget(t.label);
+              this[s.team].removePendingRescueTarget(t.label + 'm');
+
+              // Nullify eliminated sequence
+              this.nullify('eliminate', t.label);
+            }
+
+            if (rescueBall) {
+            // If there is a rescue ball after hit
+              this.rescue(rescueBall);
+
+              // If the target ball eliminated, check any pending hit
+              // and transfer over to team pending active hits
+              if (this[t.team].balls[t.idx].isEliminated()) {
+                if (this[t.team].balls[t.idx].activeHits.length > 0) {
+                  this[t.team].pendingRescue.push(...this[t.team].balls[t.idx].activeHits);
+                }
+              }
+            } else {
+            // Check any pending team pending active hits or miss hits rescue
+              if (this[t.team].pendingRescue.length > 0) {
+                const rescueBall = this[t.team].pendingRescue.shift();
+                this.rescue(rescueBall);
               }
             }
           } else {
-            // Check any pending team pending active hits or miss hits rescue
-            if (this[t.team].pendingRescue.length > 0) {
-              const rescueBall = this[t.team].pendingRescue.shift();
-              this.rescue(rescueBall);
+          // Check whether it is hit ownself
+            if ((s.team === t.team) && (s.idx === t.idx)) {
+              throw new Error('Cannot hit ownself!');
+            }
+            // Miss Hit save target first
+            this[s.team].balls[s.idx].missHit(t.label);
+            this[t.team].balls[t.idx].getMissHitBy(s.label);
+
+            // Store the rescue order in opponet pending list
+            const opponent = (t.team === 'r') ? 'w' : 'r';
+            if (!this[t.team].balls[t.idx].isEliminated()) {
+              this[opponent].pendingRescue.push(t.label + 'm');
             }
           }
         } else {
-          // Check whether it is hit ownself
-          if ((s.team === t.team) && (s.idx === t.idx)) {
-            throw new Error('Cannot hit ownself!');
-          }
-          // Miss Hit save target first
-          this[s.team].balls[s.idx].missHit(t.label);
-          this[t.team].balls[t.idx].getMissHitBy(s.label);
-
-          // Store the rescue order in opponet pending list
-          const opponent = (t.team === 'r') ? 'w' : 'r';
-          if (!this[t.team].balls[t.idx].isEliminated()) {
-            this[opponent].pendingRescue.push(t.label + 'm');
-          }
-        }
-      } else {
         // Foul input action
-        const s = {
-          label: match[1] + match[2],
-          team: match[1],
-          idx: parseInt(match[2]) - 1
-        };
+          const s = {
+            label: match[1] + match[2],
+            team: match[1],
+            idx: parseInt(match[2]) - 1
+          };
 
-        const f = {
-          label: match[3] + match[4],
-          mode: match[3],
-          type: match[4]
-        };
+          const f = {
+            label: match[3] + match[4],
+            mode: match[3],
+            type: match[4]
+          };
 
-        // Miss Turn Foul, No penalty. Nullify the last seqeuence
-        this.sequence[this.sequence.length - 1].nullify = true;
+          // Miss Turn Foul, No penalty. Nullify the last seqeuence
+          this.sequence[this.sequence.length - 1].nullify = true;
 
-        this[s.team].balls[s.idx].commitFoul();
+          this[s.team].balls[s.idx].commitFoul();
+        }
+
+        // Update score
+        this.updateScore();
+      } catch (error) {
+        // Revert last sequence
+        this.sequence.pop();
+        throw error;
       }
-
-      // Update score
-      this.updateScore();
     },
 
     clear: function () {
