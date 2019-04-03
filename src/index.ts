@@ -1,0 +1,1 @@
+export const wiser = (name: string) => `Hello ${name}`;

@@ -1,28 +1,26 @@
 {
   "name": "wisersport",
-  "version": "0.1.6",
+  "version": "0.2.0",
   "description": "Wiser Sport core engine",
-  "main": "./src/index.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
-    "test": "node_modules/.bin/mocha --reporter spec",
+    "build": "tsc",
+    "test": "jest --config jestconfig.json",
+    "lint": "tslint -p tsconfig.json",
     "cover": "node_modules/istanbul/lib/cli.js cover node_modules/mocha/bin/_mocha -- -R spec test/*"
   },
   "author": "Low Jeng Lam <jenglamlow@gmail.com>",
   "license": "MIT",
   "devDependencies": {
-    "chai": "^4.1.2",
-    "coveralls": "^3.0.2",
-    "eslint": "^5.1.0",
-    "eslint-config-standard": "^11.0.0",
-    "eslint-plugin-chai-friendly": "^0.4.1",
-    "eslint-plugin-import": "^2.13.0",
-    "eslint-plugin-mocha": "^5.1.0",
-    "eslint-plugin-node": "^6.0.1",
-    "eslint-plugin-promise": "^3.8.0",
-    "eslint-plugin-requirejs": "^3.2.0",
-    "eslint-plugin-standard": "^3.1.0",
-    "istanbul": "^0.4.5",
-    "mocha": "^5.2.0"
+    "@types/jest": "^24.0.11",
+    "jest": "^24.7.0",
+    "prettier": "^1.16.4",
+    "ts-jest": "^24.0.1",
+    "tslint": "^5.15.0",
+    "tslint-config-airbnb": "^5.11.1",
+    "tslint-config-prettier": "^1.18.0",
+    "typescript": "^3.4.1"
   },
   "dependencies": {}
 }
