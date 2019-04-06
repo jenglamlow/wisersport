@@ -1,3 +1,5 @@
-import { wiser } from './dist';
+import {Wiser} from './src/Wiser';
 
-wiser('hello');
+
+const wiser = new Wiser();
+

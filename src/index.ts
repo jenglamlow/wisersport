@@ -1,1 +1,3 @@
-export const wiser = (name: string) => `Hello ${name}`;
+import { Wiser } from './Wiser';
+
+export default Wiser;
