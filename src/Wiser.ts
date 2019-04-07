@@ -20,6 +20,7 @@ interface IBallstate {
 interface ITeamState {
   name: string;
   score: number;
+  pendingRescue: string[];
   balls: IBallstate[];
 }
 
@@ -51,9 +52,25 @@ export interface IGameState {
   match: IMatchInfo;
 }
 
+const template = {
+  name: 'Malaysia',
+  config: {
+    point: {
+      contesting: 5,
+      firstLocked: 2,
+      secondLocked: 1,
+      eliminated: 0,
+    },
+    missHit: {
+      sourcePenalty: 1, // 3 - WWSC rule
+      targetPenalty: 0, // 1 - WWSC rule
+    },
+  },
+};
+
 const gameState: IGameState = {
   info: {
-    rules: {},
+    rules: { ...template },
     r: {
       name: '',
     },
@@ -66,11 +83,13 @@ const gameState: IGameState = {
     r: {
       name: '',
       score: 0,
+      pendingRescue: [],
       balls: [],
     },
     w: {
       name: '',
       score: 0,
+      pendingRescue: [],
       balls: [],
     },
     sequences: [],
@@ -106,40 +125,25 @@ export class Wiser {
       throw new Error('The match already ended');
     }
 
-    try {
-      const s: IBall = {
-        team: match[1] === 'r' ? 'r' : 'w',
-        idx: parseInt(match[2], 10) - 1,
-      };
+    const s = this.convertBall(`${match[1]}${match[2]}`);
+    const t = this.convertBall(`${match[3]}${match[4]}`);
 
-      const t: IBall = {
-        team: match[3] === 'r' ? 'r' : 'w',
-        idx: parseInt(match[4], 10) - 1,
-      };
+    const prevMatchState = JSON.parse(JSON.stringify(this.state.match));
 
-      const prevMatchState = JSON.parse(JSON.stringify(this.state.match));
+    // Add into sequence
+    this.state.match.sequences.push({
+      action: input,
+      nullified: false,
+    });
 
-      // Proper Hit
-      if (s.team !== t.team) {
-        const rescue = this.hit(s,t);
-      }
-    } catch {}
+    // Proper Hit
+    const rescue = this.hit(s, t);
+    // this.rescue(rescue)
 
-    // Generate command based on input
-    // const command: ICommand = {
-    //   command: 'r1w1',
-    //   undo: (state) => {console.log(state);},
-    //   redo: (state) => {console.log(state);}
-    // };
-
-    // Update state based on current input
-    // this.hit('r1','w1');
-
-    // Add to CommandManager
-    // this.manager.add(command);
+    // console.log(deepDiff.diff(prevMatchState, this.state.match));
   }
 
-  public reset () {
+  public reset() {
     this.state.match.sequences = [];
     this.initBallState(this.state.match.r.balls.length);
   }
@@ -167,22 +171,47 @@ export class Wiser {
       }));
   }
 
-  private hit(src: IBall, target: IBall) {
-    const s = this.state.match[src.team].balls[src.idx];
-    const t = this.state.match[target.team].balls[target.idx];
+  private convertBall(s: string): IBall {
+    return {
+      team: s[0] === 'r' ? 'r' : 'w',
+      idx: parseInt(s[1], 10) - 1,
+    };
+  }
 
-    // Source
-    // Check whether source can hit
-    if (s.status === BallStatus.Contesting) {
-      s.hits.push(t.label);
-      s.activeHits.push(t.label);
-    } else {
+  private rescue(target: IBall) {
+    // console.log(target);
+  }
+
+  private hit(src: IBall, target: IBall) {
+    const sTeam = this.state.match[src.team];
+    const s = sTeam.balls[src.idx];
+    const tTeam = this.state.match[target.team];
+    const t = tTeam.balls[target.idx];
+
+    // Input Validation
+    // Source must be contesting ball
+    if (s.status !== BallStatus.Contesting) {
       throw new Error(`${s.label} is not contesting ball. Cannot hit!`);
     }
 
-    // Target
-    let rescue = null;
-    if (t.status !== BallStatus.Eliminated) {
+    // Target must not eliminated
+    if (t.status === BallStatus.Eliminated) {
+      throw new Error(`${t.label} is already eliminated!`);
+    }
+
+    // Cannot hit ownself
+    if (s.label === t.label) {
+      throw new Error('Cannot hit ownself!');
+    }
+
+    // Check whether is proper hit or miss hit
+    if (src.team !== target.team) {
+      // Source
+      s.hits.push(t.label);
+      s.activeHits.push(t.label);
+
+      // Target
+      let rescue = null;
       t.hitBy.push(s.label);
       t.status += 1;
 
@@ -191,9 +220,8 @@ export class Wiser {
         // Remove target from source's active list
         s.activeHits = s.activeHits.filter(ball => ball !== t.label);
 
-        // Remove pending rescue from the eliminated ball
-        // this[s.team].removePendingRescueTarget(t.label);
-        // this[s.team].removePendingRescueTarget(t.label + 'm');
+        // Remove the eliminated ball from pending rescue list
+        sTeam.pendingRescue = sTeam.pendingRescue.filter(ball => ball !== t.label);
 
         // Nullify eliminated sequence
         // this.nullify('eliminate', t.label);
@@ -201,19 +229,24 @@ export class Wiser {
 
       // Get rescue ball if exist
       if (t.activeHits.length > 0) {
-        rescue = t.activeHits.shift();
+        rescue = this.convertBall(t.activeHits.shift() as string);
+
+        // Check if target has any active hits, if so transfer to source pending rescue
+        if (t.status === BallStatus.Eliminated) {
+          sTeam.pendingRescue.push(...t.activeHits);
+        }
+      } else {
+        // Check pending rescue list
+        if (sTeam.pendingRescue.length > 0) {
+          rescue = this.convertBall(sTeam.pendingRescue.shift() as string);
+        }
       }
-    } else {
-      throw new Error(`${t.label} is already eliminated!`);
+      return rescue;
     }
-    
-    return rescue;
+    // Miss Hit
+    // console.log('Miss Hit');
   }
 }
-
-const wiser = new Wiser();
-
-wiser.process('r1w2');
 
 // const cm = new CommandManager();
 
@@ -286,6 +319,3 @@ wiser.process('r1w2');
 
 //   }
 // }
-
-// console.log(s0);
-// console.log(s1);
