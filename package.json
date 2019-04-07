@@ -6,13 +6,14 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc",
-    "test": "jest --config jestconfig.json",
+    "test": "jest",
     "lint": "tslint -p tsconfig.json",
     "cover": "node_modules/istanbul/lib/cli.js cover node_modules/mocha/bin/_mocha -- -R spec test/*"
   },
   "author": "Low Jeng Lam <jenglamlow@gmail.com>",
   "license": "MIT",
   "devDependencies": {
+    "@types/deep-diff": "^1.0.0",
     "@types/jest": "^24.0.11",
     "jest": "^24.7.0",
     "prettier": "^1.16.4",
@@ -23,5 +24,7 @@
     "tslint-config-prettier": "^1.18.0",
     "typescript": "^3.4.1"
   },
-  "dependencies": {}
+  "dependencies": {
+    "deep-diff": "^1.0.2"
+  }
 }
