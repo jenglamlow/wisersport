@@ -8,7 +8,7 @@
     "build": "tsc",
     "test": "jest",
     "lint": "tslint -p tsconfig.json",
-    "cover": "node_modules/istanbul/lib/cli.js cover node_modules/mocha/bin/_mocha -- -R spec test/*"
+    "cover": "jest --coverage && cat ./coverage/lcov.info | coveralls"
   },
   "author": "Low Jeng Lam <jenglamlow@gmail.com>",
   "license": "MIT",
@@ -31,6 +31,7 @@
   "devDependencies": {
     "@types/deep-diff": "^1.0.0",
     "@types/jest": "^24.0.11",
+    "coveralls": "^3.0.3",
     "husky": "^1.3.1",
     "jest": "^24.7.0",
     "lint-staged": "^8.1.5",
