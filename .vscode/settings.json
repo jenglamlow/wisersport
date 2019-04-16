@@ -1,8 +1,9 @@
 {
-    "editor.tabSize": 2,
-    "editor.codeActionsOnSave": {
-        "source.fixAll.tslint": true
-    },
-    "jest.pathToJest": "yarn test",
-    "jest.coverageFormatter": "GutterFormatter"
+  "editor.tabSize": 2,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.tslint": true
+  },
+  "tslint.autoFixOnSave": true,
+  "jest.pathToJest": "yarn test",
+  "jest.coverageFormatter": "GutterFormatter"
 }
