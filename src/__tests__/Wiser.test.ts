@@ -5,6 +5,7 @@ const wiser = new Wiser();
 
 beforeEach(() => {
   wiser.reset();
+  wiser.state.info.rules.config.missHitType = 'MY';
 });
 
 describe('Process Command', () => {
@@ -73,21 +74,19 @@ describe('Hit', () => {
   test('Miss hit', () => {
     wiser.process('r1r2');
 
-    // Malaysia Rule
+    // Malaysia
     expect(wiser.state.match.r.balls[0].status).toBe(BallStatus.FirstLocked);
+    expect(wiser.state.match.r.balls[0].activeHits).toEqual(['r2']);
+    expect(wiser.state.match.r.balls[0].hits).toEqual(['r2']);
     expect(wiser.state.match.r.balls[1].status).toBe(BallStatus.Contesting);
+    expect(wiser.state.match.r.balls[1].hitBy).toEqual(['r1']);
 
-    // WWSC Rule
-    wiser.state.info.rules.config.missHit.sourcePenalty = 3;
-    wiser.state.info.rules.config.missHit.targetPenalty = 1;
+    // WWSC
+    wiser.state.info.rules.config.missHitType = 'WWSC';
 
     wiser.process('r3r4');
     expect(wiser.state.match.r.balls[2].status).toBe(BallStatus.Eliminated);
     expect(wiser.state.match.r.balls[3].status).toBe(BallStatus.FirstLocked);
-
-    // Reset back to Malaysia Rule
-    wiser.state.info.rules.config.missHit.sourcePenalty = 1;
-    wiser.state.info.rules.config.missHit.targetPenalty = 0;
   });
 });
 
@@ -137,10 +136,10 @@ describe('Rescue', () => {
     wiser.process('w4r1');
     expect(wiser.state.match.r.balls[0].activeHits).toEqual([]);
     expect(wiser.state.match.r.balls[0].status).toBe(BallStatus.Eliminated);
-    expect(wiser.state.match.r.activeHits).toEqual(['w2', 'w3', 'w3']);
+    expect(wiser.state.match.r.pendingRescue).toEqual(['w2', 'w3', 'w3']);
 
     wiser.process('w4r4');
-    expect(wiser.state.match.r.activeHits).toEqual(['w3', 'w3']);
+    expect(wiser.state.match.r.pendingRescue).toEqual(['w3', 'w3']);
     expect(wiser.state.match.w.balls[1].status).toBe(BallStatus.Contesting);
 
     wiser.process('r5w6');
@@ -148,15 +147,48 @@ describe('Rescue', () => {
 
     // Rescue target's active hits first before team active hits
     wiser.process('w4r5');
-    expect(wiser.state.match.r.activeHits).toEqual(['w3', 'w3']);
+    expect(wiser.state.match.r.pendingRescue).toEqual(['w3', 'w3']);
     expect(wiser.state.match.w.balls[5].status).toBe(BallStatus.Contesting);
 
     wiser.process('w4r5');
-    expect(wiser.state.match.r.activeHits).toEqual(['w3']);
+    expect(wiser.state.match.r.pendingRescue).toEqual(['w3']);
     expect(wiser.state.match.w.balls[2].status).toBe(BallStatus.FirstLocked);
 
     wiser.process('w4r5');
-    expect(wiser.state.match.r.activeHits).toEqual([]);
+    expect(wiser.state.match.r.pendingRescue).toEqual([]);
     expect(wiser.state.match.w.balls[2].status).toBe(BallStatus.Contesting);
+  });
+
+  test('Basic Rescue Miss Hit', () => {
+    wiser.process('r1r2');
+
+    // Malaysia
+    expect(wiser.state.match.r.balls[0].status).toBe(BallStatus.FirstLocked);
+    expect(wiser.state.match.r.balls[0].activeHits).toEqual([]);
+    expect(wiser.state.match.r.balls[1].status).toBe(BallStatus.Contesting);
+    expect(wiser.state.match.r.balls[1].hitBy).toEqual([]);
+    expect(wiser.state.match.r.pendingRescue).toEqual(['r1']);
+
+    wiser.process('r3w1');
+    expect(wiser.state.match.r.balls[0].status).toBe(BallStatus.Contesting);
+    expect(wiser.state.match.r.balls[0].activeHits).toEqual([]);
+    expect(wiser.state.match.r.balls[1].hitBy).toEqual([]);
+    expect(wiser.state.match.r.pendingRescue).toEqual([]);
+
+    // WWSC
+    wiser.state.info.rules.config.missHitType = 'WWSC';
+
+    wiser.process('r1r2');
+    expect(wiser.state.match.r.balls[0].status).toBe(BallStatus.Eliminated);
+    expect(wiser.state.match.r.balls[0].activeHits).toEqual([]);
+    expect(wiser.state.match.r.balls[1].status).toBe(BallStatus.FirstLocked);
+    expect(wiser.state.match.r.balls[1].hitBy).toEqual(['r1']);
+    expect(wiser.state.match.r.pendingRescue).toEqual(['r2']);
+
+    wiser.process('r3w1');
+    expect(wiser.state.match.r.balls[0].status).toBe(BallStatus.Eliminated);
+    expect(wiser.state.match.r.balls[1].status).toBe(BallStatus.Contesting);
+    expect(wiser.state.match.r.balls[1].hitBy).toEqual([]);
+    expect(wiser.state.match.r.pendingRescue).toEqual([]);
   });
 });

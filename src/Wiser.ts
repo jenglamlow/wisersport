@@ -18,9 +18,8 @@ interface IBallstate {
 }
 
 interface ITeamState {
-  name: string;
   score: number;
-  activeHits: string[];
+  pendingRescue: string[];
   balls: IBallstate[];
 }
 
@@ -36,7 +35,7 @@ interface IGameTeamInfo {
   name: string;
 }
 
-type MissHitPenaly = 0 | 1 | 2 | 3;
+type MissHitType = 'MY' | 'WWSC';
 interface IGameRules {
   name: string;
   config: {
@@ -46,10 +45,7 @@ interface IGameRules {
       secondLocked: number;
       eliminated: number;
     };
-    missHit: {
-      sourcePenalty: MissHitPenaly;
-      targetPenalty: MissHitPenaly;
-    };
+    missHitType: MissHitType;
   };
 }
 
@@ -62,6 +58,13 @@ interface IGameInfo {
 interface IBall {
   team: TeamKeys;
   idx: number;
+}
+
+type RescueType = 'normal' | 'missHit';
+
+interface IRescueBall {
+  type: RescueType;
+  ball: IBall;
 }
 
 export interface IGameState {
@@ -78,10 +81,7 @@ const template: IGameRules = {
       secondLocked: 1,
       eliminated: 0,
     },
-    missHit: {
-      sourcePenalty: 1, // 3 - WWSC rule
-      targetPenalty: 0, // 1 - WWSC rule
-    },
+    missHitType: 'MY',
   },
 };
 
@@ -98,15 +98,13 @@ const gameState: IGameState = {
   match: {
     winner: '',
     r: {
-      name: '',
       score: 0,
-      activeHits: [],
+      pendingRescue: [],
       balls: [],
     },
     w: {
-      name: '',
       score: 0,
-      activeHits: [],
+      pendingRescue: [],
       balls: [],
     },
     sequences: [],
@@ -156,7 +154,7 @@ export class Wiser {
     // Proper Hit
     const rescue = this.hit(s, t);
     if (rescue) {
-      this.rescue(rescue);
+      this.rescue(rescue as IRescueBall);
     }
 
     // console.log(deepDiff.diff(prevMatchState, this.state.match));
@@ -164,6 +162,11 @@ export class Wiser {
 
   public reset() {
     this.state.match.sequences = [];
+    this.state.match.r.score = 0;
+    this.state.match.r.pendingRescue = [];
+    this.state.match.w.score = 0;
+    this.state.match.w.pendingRescue = [];
+
     this.initBallState(this.state.match.r.balls.length);
   }
 
@@ -197,14 +200,21 @@ export class Wiser {
     };
   }
 
-  private rescue(target: IBall) {
-    const tTeam = this.state.match[target.team];
-    const t = tTeam.balls[target.idx];
+  private rescue(rescueBall: IRescueBall) {
+    const ball = rescueBall.ball;
+    const rescueType = rescueBall.type;
+    const tTeam = this.state.match[ball.team];
+    const t = tTeam.balls[ball.idx];
 
     if (t.status !== BallStatus.Eliminated && t.status !== BallStatus.Contesting) {
-      t.status -= 1;
-      t.hitBy.shift();
-    } else if (t.status !== BallStatus.Eliminated) {
+      if (rescueType === 'normal') {
+        t.status -= 1;
+        t.hitBy.shift();
+      } else {
+        t.status -= 1;
+        t.hitBy.shift();
+      }
+    } else if (t.status === BallStatus.Eliminated) {
       throw new Error(`${t.label} is already eliminated!`);
     } else {
       throw new Error(`${t.label} is not locked!`);
@@ -251,8 +261,8 @@ export class Wiser {
         // Remove target from source's active list
         s.activeHits = s.activeHits.filter(ball => ball !== t.label);
 
-        // Remove the eliminated ball from team active list
-        tTeam.activeHits = tTeam.activeHits.filter(ball => ball !== t.label);
+        // Remove the eliminated ball from source team active list
+        sTeam.pendingRescue = sTeam.pendingRescue.filter(ball => ball !== t.label);
 
         // Nullify eliminated sequence
         // this.nullify('eliminate', t.label);
@@ -260,30 +270,57 @@ export class Wiser {
 
       // Get rescue ball if exist
       if (t.activeHits.length > 0) {
-        rescue = this.convertBall(t.activeHits.shift() as string);
+        rescue = {
+          type: 'normal',
+          ball: this.convertBall(t.activeHits.shift() as string),
+        };
 
         // Check if target has any active hits, if so transfer to team active lists
         if (t.status === BallStatus.Eliminated) {
-          tTeam.activeHits.push(...t.activeHits);
+          tTeam.pendingRescue.push(...t.activeHits);
 
           // Clear eliminated's ball active hit list
           t.activeHits = [];
         }
       } else {
         // Check the target's team active list
-        if (tTeam.activeHits.length > 0) {
-          rescue = this.convertBall(tTeam.activeHits.shift() as string);
+        if (tTeam.pendingRescue.length > 0) {
+          rescue = {
+            type: 'normal',
+            ball: this.convertBall(tTeam.pendingRescue.shift() as string),
+          };
+        }
+
+        // Check any miss hit pending rescue
+        const regex = new RegExp(`${src.team}\\d`, 'g');
+        const missHit = sTeam.pendingRescue.filter(ball => ball.match(regex));
+        if (missHit.length > 0) {
+          rescue = {
+            type: 'missHit',
+            ball: this.convertBall(missHit[0] as string),
+          };
+
+          // Remove from pendingRescue
+          const idx = sTeam.pendingRescue.findIndex(elem => elem === missHit[0]);
+          sTeam.pendingRescue.splice(idx, 1);
         }
       }
     } else {
       // Miss Hit
-      const missHitConfig = this.state.info.rules.config.missHit;
+      const missHitType = this.state.info.rules.config.missHitType;
+      if (missHitType === 'MY') {
+        s.status += 1;
+        // s.activeHits.push(t.label);
+        sTeam.pendingRescue.push(s.label);
+      } else {
+        s.status = BallStatus.Eliminated;
+        sTeam.pendingRescue.push(t.label);
+        t.status += 1;
+        t.hitBy.push(s.label);
+      }
 
-      s.status = Math.min(BallStatus.Eliminated, s.status + missHitConfig.sourcePenalty);
-      t.status = Math.min(BallStatus.Eliminated, t.status + missHitConfig.targetPenalty);
-
-      // console.log(this.state.match.r.balls[0]);
-      // console.log(this.state.match.r.balls[1]);
+      // Source
+      s.hits.push(t.label);
     }
     return rescue;
   }
@@ -291,44 +328,11 @@ export class Wiser {
 
 // const cm = new CommandManager();
 
-const w = new Wiser();
+// const wiser = new Wiser();
 
-w.process('r1r2');
-
-// const s0 = {
-//   match: {
-//     r: {
-//       name: '',
-//       score: 0,
-//       balls: [],
-//     },
-//     w: {
-//       name: '',
-//       score: 0,
-//       balls: [],
-//     },
-//     sequences: [],
-//   }
-// };
-
-// const s1 = {
-//   match: {
-//     r: {
-//       name: '',
-//       score: 1,
-//       balls: [],
-//     },
-//     w: {
-//       name: '',
-//       score: 1,
-//       balls: [],
-//     },
-//     sequences: [{
-//       action: "r1w1",
-//       nullified: false
-//     }],
-//   }
-// };
+// wiser.process('r1r2');
+// wiser.process('r3w1');
+// console.log(wiser.state.match.r.balls[1]);
 
 // const change = deepDiff.diff(s0,s1);
 // let t;
