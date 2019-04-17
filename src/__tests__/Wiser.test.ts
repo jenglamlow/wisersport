@@ -79,7 +79,7 @@ describe('Hit', () => {
     expect(wiser.state.match.r.balls[0].activeHits).toEqual(['r2']);
     expect(wiser.state.match.r.balls[0].hits).toEqual(['r2']);
     expect(wiser.state.match.r.balls[1].status).toBe(BallStatus.Contesting);
-    expect(wiser.state.match.r.balls[1].hitBy).toEqual(['r1']);
+    expect(wiser.state.match.r.balls[1].hitBy).toEqual([]);
 
     // WWSC
     wiser.state.info.rules.config.missHitType = 'WWSC';
@@ -164,7 +164,7 @@ describe('Rescue', () => {
 
     // Malaysia
     expect(wiser.state.match.r.balls[0].status).toBe(BallStatus.FirstLocked);
-    expect(wiser.state.match.r.balls[0].activeHits).toEqual([]);
+    expect(wiser.state.match.r.balls[0].activeHits).toEqual(['r2']);
     expect(wiser.state.match.r.balls[1].status).toBe(BallStatus.Contesting);
     expect(wiser.state.match.r.balls[1].hitBy).toEqual([]);
     expect(wiser.state.match.r.pendingRescue).toEqual(['r1']);

@@ -2,7 +2,7 @@ import deepDiff from 'deep-diff';
 
 import { CommandManager, ICommand, ICommandManager } from './CommandManager';
 import { BallStatus } from './Constant';
-
+import { removeFirstTeamBall } from './utils';
 interface ISequence {
   action: string;
   nullified: boolean;
@@ -209,10 +209,14 @@ export class Wiser {
     if (t.status !== BallStatus.Eliminated && t.status !== BallStatus.Contesting) {
       if (rescueType === 'normal') {
         t.status -= 1;
-        t.hitBy.shift();
+        removeFirstTeamBall(t.hitBy, ball.team === 'r' ? 'w' : 'r');
       } else {
         t.status -= 1;
-        t.hitBy.shift();
+        if (this.state.info.rules.config.missHitType === 'MY') {
+          removeFirstTeamBall(t.activeHits, ball.team === 'r' ? 'r' : 'w');
+        } else {
+          removeFirstTeamBall(t.hitBy, ball.team === 'r' ? 'r' : 'w');
+        }
       }
     } else if (t.status === BallStatus.Eliminated) {
       throw new Error(`${t.label} is already eliminated!`);
@@ -221,7 +225,7 @@ export class Wiser {
     }
   }
 
-  private hit(src: IBall, target: IBall) {
+  private hit(src: IBall, target: IBall): IRescueBall | null {
     const sTeam = this.state.match[src.team];
     const s = sTeam.balls[src.idx];
     const tTeam = this.state.match[target.team];
@@ -243,7 +247,7 @@ export class Wiser {
       throw new Error('Cannot hit ownself!');
     }
 
-    let rescue = null;
+    let rescue: IRescueBall | null = null;
 
     // Check whether is proper hit or miss hit
     if (src.team !== target.team) {
@@ -292,17 +296,12 @@ export class Wiser {
         }
 
         // Check any miss hit pending rescue
-        const regex = new RegExp(`${src.team}\\d`, 'g');
-        const missHit = sTeam.pendingRescue.filter(ball => ball.match(regex));
-        if (missHit.length > 0) {
+        const removedBall = removeFirstTeamBall(sTeam.pendingRescue, src.team);
+        if (removedBall) {
           rescue = {
             type: 'missHit',
-            ball: this.convertBall(missHit[0] as string),
+            ball: this.convertBall(removedBall as string),
           };
-
-          // Remove from pendingRescue
-          const idx = sTeam.pendingRescue.findIndex(elem => elem === missHit[0]);
-          sTeam.pendingRescue.splice(idx, 1);
         }
       }
     } else {
@@ -310,7 +309,7 @@ export class Wiser {
       const missHitType = this.state.info.rules.config.missHitType;
       if (missHitType === 'MY') {
         s.status += 1;
-        // s.activeHits.push(t.label);
+        s.activeHits.push(t.label);
         sTeam.pendingRescue.push(s.label);
       } else {
         s.status = BallStatus.Eliminated;

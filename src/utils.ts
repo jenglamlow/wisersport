@@ -11,8 +11,8 @@ export const removeFirstTeamBall = (arr: any[], team: string) => {
 
   if (match.length > 0) {
     removeFirst(arr, match[0]);
-    return true;
+    return match[0];
   }
 
-  return false;
+  return null;
 };

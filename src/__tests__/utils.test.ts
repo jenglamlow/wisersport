@@ -32,26 +32,26 @@ describe('removeFirstTeamBall', () => {
   test('Remove first ball from team', () => {
     const arr = ['r1', 'r2', 'r1', 'w1', 'w3', 'r4'];
 
-    expect(removeFirstTeamBall(arr, 'r')).toBe(true);
+    expect(removeFirstTeamBall(arr, 'r')).toBe('r1');
     expect(arr).toEqual(['r2', 'r1', 'w1', 'w3', 'r4']);
 
-    expect(removeFirstTeamBall(arr, 'w')).toBe(true);
+    expect(removeFirstTeamBall(arr, 'w')).toBe('w1');
     expect(arr).toEqual(['r2', 'r1', 'w3', 'r4']);
 
-    expect(removeFirstTeamBall(arr, 'w')).toBe(true);
+    expect(removeFirstTeamBall(arr, 'w')).toBe('w3');
     expect(arr).toEqual(['r2', 'r1', 'r4']);
   });
 
   test('Does not remove if there is no match value', () => {
     const arr = ['r1', 'r2', 'r1', 'r4'];
 
-    expect(removeFirstTeamBall(arr, 'w')).toBe(false);
+    expect(removeFirstTeamBall(arr, 'w')).toBe(null);
     expect(arr).toEqual(['r1', 'r2', 'r1', 'r4']);
   });
 
   test('Empty array', () => {
     const arr = [];
-    expect(removeFirstTeamBall(arr, 'w')).toBe(false);
+    expect(removeFirstTeamBall(arr, 'w')).toBe(null);
     expect(arr).toEqual([]);
   });
 });
