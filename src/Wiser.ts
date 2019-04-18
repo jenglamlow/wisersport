@@ -213,9 +213,9 @@ export class Wiser {
       } else {
         t.status -= 1;
         if (this.state.info.rules.config.missHitType === 'MY') {
-          removeFirstTeamBall(t.activeHits, ball.team === 'r' ? 'r' : 'w');
+          removeFirstTeamBall(t.activeHits, ball.team);
         } else {
-          removeFirstTeamBall(t.hitBy, ball.team === 'r' ? 'r' : 'w');
+          removeFirstTeamBall(t.hitBy, ball.team);
         }
       }
     } else if (t.status === BallStatus.Eliminated) {
@@ -273,10 +273,12 @@ export class Wiser {
       }
 
       // Get rescue ball if exist
-      if (t.activeHits.length > 0) {
+      const rescuedBall = removeFirstTeamBall(t.activeHits, src.team);
+
+      if (rescuedBall) {
         rescue = {
           type: 'normal',
-          ball: this.convertBall(t.activeHits.shift() as string),
+          ball: this.convertBall(rescuedBall as string),
         };
 
         // Check if target has any active hits, if so transfer to team active lists
@@ -288,10 +290,12 @@ export class Wiser {
         }
       } else {
         // Check the target's team active list
-        if (tTeam.pendingRescue.length > 0) {
+        const pendingRescueBall = removeFirstTeamBall(tTeam.pendingRescue, src.team);
+
+        if (pendingRescueBall) {
           rescue = {
             type: 'normal',
-            ball: this.convertBall(tTeam.pendingRescue.shift() as string),
+            ball: this.convertBall(pendingRescueBall as string),
           };
         }
 
@@ -330,8 +334,8 @@ export class Wiser {
 // const wiser = new Wiser();
 
 // wiser.process('r1r2');
-// wiser.process('r3w1');
-// console.log(wiser.state.match.r.balls[1]);
+
+// console.log(wiser.state.match.r.balls[0]);
 
 // const change = deepDiff.diff(s0,s1);
 // let t;
