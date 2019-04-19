@@ -292,3 +292,42 @@ describe('Rescue', () => {
     expect(wiser.state.match.r.pendingRescue).toEqual([]);
   });
 });
+
+describe('Sequence', () => {
+  test('Record Sequence', () => {
+    wiser.process('r1w2');
+    expect(wiser.state.match.sequences).toEqual([{ action: 'r1w2', nullified: false }]);
+
+    wiser.process('w1r3');
+    expect(wiser.state.match.sequences).toEqual([
+      { action: 'r1w2', nullified: false },
+      { action: 'w1r3', nullified: false },
+    ]);
+  });
+
+  test('Nullify Eliminated Ball Sequences', () => {
+    wiser.process('r1w2');
+    wiser.process('r1w2');
+    wiser.process('r1w2');
+    expect(wiser.state.match.sequences).toEqual([
+      { action: 'r1w2', nullified: true },
+      { action: 'r1w2', nullified: true },
+      { action: 'r1w2', nullified: true },
+    ]);
+  });
+
+  test('Nullify Rescue Ball Sequences', () => {
+    wiser.process('r1w2');
+    wiser.process('w3r1');
+    expect(wiser.state.match.sequences).toEqual([
+      { action: 'r1w2', nullified: true },
+      { action: 'w3r1', nullified: false },
+    ]);
+    wiser.process('r4w3');
+    expect(wiser.state.match.sequences).toEqual([
+      { action: 'r1w2', nullified: true },
+      { action: 'w3r1', nullified: true },
+      { action: 'r4w3', nullified: false },
+    ]);
+  });
+});

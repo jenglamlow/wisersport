@@ -200,6 +200,21 @@ export class Wiser {
     };
   }
 
+  private nullify(type, target) {
+    const validSequence = this.state.match.sequences.filter(s => s.nullified === false);
+
+    if (type === 'rescue') {
+      const seq = validSequence.filter(s => s.action.indexOf(target.slice(0, 2)) !== -1);
+      seq[0].nullified = true;
+    } else {
+      // eliminate mode
+      const seq = validSequence.filter(s => s.action.indexOf(target.slice(0, 2)) === 2);
+      seq[0].nullified = true;
+      seq[1].nullified = true;
+      seq[2].nullified = true;
+    }
+  }
+
   private rescue(rescueBall: IRescueBall) {
     const ball = rescueBall.ball;
     const rescueType = rescueBall.type;
@@ -218,6 +233,9 @@ export class Wiser {
           removeFirstTeamBall(t.hitBy, ball.team);
         }
       }
+
+      // Nullify Rescued Ball Sequence
+      this.nullify('rescue', t.label);
     } else if (t.status === BallStatus.Eliminated) {
       throw new Error(`${t.label} is already eliminated!`);
     } else {
@@ -269,7 +287,7 @@ export class Wiser {
         sTeam.pendingRescue = sTeam.pendingRescue.filter(ball => ball !== t.label);
 
         // Nullify eliminated sequence
-        // this.nullify('eliminate', t.label);
+        this.nullify('eliminate', t.label);
       }
 
       // Get rescue ball if exist
@@ -333,7 +351,9 @@ export class Wiser {
 
 // const wiser = new Wiser();
 
-// wiser.process('r1r2');
+// wiser.process('r1w2');
+// wiser.process('r1w2');
+// wiser.process('r1w2');
 
 // console.log(wiser.state.match.r.balls[0]);
 
