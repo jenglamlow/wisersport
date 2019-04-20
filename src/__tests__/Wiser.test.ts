@@ -353,6 +353,74 @@ describe('Sequence', () => {
     ]);
   });
 
+  test('WWSC Nullify Team Pending Rescue', () => {
+    wiser.process('r1w1');
+    wiser.process('r1w2');
+    wiser.process('r1w1');
+    wiser.process('r1w2');
+    wiser.process('r1w3');
+    wiser.process('r1w3');
+    wiser.process('w4r1');
+    wiser.process('w4r1');
+    wiser.process('w4r1');
+    expect(wiser.state.match.sequences).toEqual([
+      { action: 'r1w1', nullified: true },
+      { action: 'r1w2', nullified: true },
+      { action: 'r1w1', nullified: true },
+      { action: 'r1w2', nullified: false },
+      { action: 'r1w3', nullified: false },
+      { action: 'r1w3', nullified: false },
+      { action: 'w4r1', nullified: true },
+      { action: 'w4r1', nullified: true },
+      { action: 'w4r1', nullified: true },
+    ]);
+
+    wiser.process('w4r7');
+    expect(wiser.state.match.sequences).toEqual([
+      { action: 'r1w1', nullified: true },
+      { action: 'r1w2', nullified: true },
+      { action: 'r1w1', nullified: true },
+      { action: 'r1w2', nullified: true },
+      { action: 'r1w3', nullified: false },
+      { action: 'r1w3', nullified: false },
+      { action: 'w4r1', nullified: true },
+      { action: 'w4r1', nullified: true },
+      { action: 'w4r1', nullified: true },
+      { action: 'w4r7', nullified: false },
+    ]);
+
+    wiser.process('w4r7');
+    expect(wiser.state.match.sequences).toEqual([
+      { action: 'r1w1', nullified: true },
+      { action: 'r1w2', nullified: true },
+      { action: 'r1w1', nullified: true },
+      { action: 'r1w2', nullified: true },
+      { action: 'r1w3', nullified: true },
+      { action: 'r1w3', nullified: false },
+      { action: 'w4r1', nullified: true },
+      { action: 'w4r1', nullified: true },
+      { action: 'w4r1', nullified: true },
+      { action: 'w4r7', nullified: false },
+      { action: 'w4r7', nullified: false },
+    ]);
+
+    wiser.process('w4r7');
+    expect(wiser.state.match.sequences).toEqual([
+      { action: 'r1w1', nullified: true },
+      { action: 'r1w2', nullified: true },
+      { action: 'r1w1', nullified: true },
+      { action: 'r1w2', nullified: true },
+      { action: 'r1w3', nullified: true },
+      { action: 'r1w3', nullified: true },
+      { action: 'w4r1', nullified: true },
+      { action: 'w4r1', nullified: true },
+      { action: 'w4r1', nullified: true },
+      { action: 'w4r7', nullified: true },
+      { action: 'w4r7', nullified: true },
+      { action: 'w4r7', nullified: true },
+    ]);
+  });
+
   test('MY Nullify Miss Hit Sequences (Complex)', () => {
     wiser.process('r1r2');
     expect(wiser.state.match.sequences).toEqual([{ action: 'r1r2', nullified: false }]);
