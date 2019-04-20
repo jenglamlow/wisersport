@@ -2,7 +2,7 @@ import deepDiff from 'deep-diff';
 
 import { CommandManager, ICommand, ICommandManager } from './CommandManager';
 import { BallStatus } from './Constant';
-import { removeFirstTeamBall } from './utils';
+import { isMissHittSequence, isNormalHitSequence, removeFirstTeamBall } from './utils';
 interface ISequence {
   action: string;
   nullified: boolean;
@@ -61,11 +61,12 @@ interface IBall {
 }
 
 type RescueType = 'normal' | 'missHit';
-
 interface IRescueBall {
   type: RescueType;
   ball: IBall;
 }
+
+type nullifyType = 'rescue' | 'eliminate' | 'rescueMissHit';
 
 export interface IGameState {
   info: IGameInfo;
@@ -200,18 +201,26 @@ export class Wiser {
     };
   }
 
-  private nullify(type, target) {
+  private nullify(type: nullifyType, target) {
     const validSequence = this.state.match.sequences.filter(s => s.nullified === false);
 
     if (type === 'rescue') {
-      const seq = validSequence.filter(s => s.action.indexOf(target.slice(0, 2)) !== -1);
+      // Find non-missHit target
+      const seq = validSequence.filter(s => isNormalHitSequence(s.action, target));
+      // const seq = validSequence.filter(s => s.action);
       seq[0].nullified = true;
-    } else {
+    } else if (type === 'eliminate') {
       // eliminate mode
       const seq = validSequence.filter(s => s.action.indexOf(target.slice(0, 2)) === 2);
       seq[0].nullified = true;
       seq[1].nullified = true;
       seq[2].nullified = true;
+    } else {
+      // Rescue Miss Hit
+      const seq = validSequence.filter(s =>
+        isMissHittSequence(s.action, target, this.state.info.rules.config.missHitType === 'WWSC')
+      );
+      seq[0].nullified = true;
     }
   }
 
@@ -225,6 +234,9 @@ export class Wiser {
       if (rescueType === 'normal') {
         t.status -= 1;
         removeFirstTeamBall(t.hitBy, ball.team === 'r' ? 'w' : 'r');
+
+        // Nullify Rescued Ball Sequence
+        this.nullify('rescue', t.label);
       } else {
         t.status -= 1;
         if (this.state.info.rules.config.missHitType === 'MY') {
@@ -232,10 +244,10 @@ export class Wiser {
         } else {
           removeFirstTeamBall(t.hitBy, ball.team);
         }
-      }
 
-      // Nullify Rescued Ball Sequence
-      this.nullify('rescue', t.label);
+        // Nullify Rescued Ball Sequence
+        this.nullify('rescueMissHit', t.label);
+      }
     } else if (t.status === BallStatus.Eliminated) {
       throw new Error(`${t.label} is already eliminated!`);
     } else {
@@ -335,9 +347,24 @@ export class Wiser {
         sTeam.pendingRescue.push(s.label);
       } else {
         s.status = BallStatus.Eliminated;
-        sTeam.pendingRescue.push(t.label);
         t.status += 1;
         t.hitBy.push(s.label);
+
+        // Move the eliminated source's pending rescue to the team's pending rescue
+        if (t.status === BallStatus.Eliminated) {
+          tTeam.pendingRescue.push(...t.activeHits);
+
+          // Clear eliminated's ball active hit list
+          t.activeHits = [];
+
+          // Nullify eliminated sequence
+          this.nullify('eliminate', t.label);
+        }
+        // Transfer active hit to team's pending rescue
+        sTeam.pendingRescue.push(...s.activeHits);
+
+        // Pending Rescue miss-hitted target
+        sTeam.pendingRescue.push(t.label);
       }
 
       // Source
@@ -351,9 +378,12 @@ export class Wiser {
 
 // const wiser = new Wiser();
 
-// wiser.process('r1w2');
-// wiser.process('r1w2');
-// wiser.process('r1w2');
+// wiser.state.info.rules.config.missHitType = 'WWSC';
+
+// wiser.process('r1r2');
+// wiser.process('w4r2');
+// wiser.process('r3r2');
+// wiser.process('w5w6');
 
 // console.log(wiser.state.match.r.balls[0]);
 

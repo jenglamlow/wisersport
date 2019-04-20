@@ -330,4 +330,94 @@ describe('Sequence', () => {
       { action: 'r4w3', nullified: false },
     ]);
   });
+
+  test('MY Nullify Miss Hit Sequences', () => {
+    wiser.process('r1r2');
+    expect(wiser.state.match.sequences).toEqual([{ action: 'r1r2', nullified: false }]);
+    wiser.process('r3w4');
+    expect(wiser.state.match.sequences).toEqual([
+      { action: 'r1r2', nullified: true },
+      { action: 'r3w4', nullified: false },
+    ]);
+  });
+
+  test('WWSC Nullify Miss Hit Sequences', () => {
+    wiser.state.info.rules.config.missHitType = 'WWSC';
+
+    wiser.process('r1r2');
+    expect(wiser.state.match.sequences).toEqual([{ action: 'r1r2', nullified: false }]);
+    wiser.process('r3w4');
+    expect(wiser.state.match.sequences).toEqual([
+      { action: 'r1r2', nullified: true },
+      { action: 'r3w4', nullified: false },
+    ]);
+  });
+
+  test('MY Nullify Miss Hit Sequences (Complex)', () => {
+    wiser.process('r1r2');
+    expect(wiser.state.match.sequences).toEqual([{ action: 'r1r2', nullified: false }]);
+    wiser.process('w4r1');
+    expect(wiser.state.match.sequences).toEqual([
+      { action: 'r1r2', nullified: false },
+      { action: 'w4r1', nullified: false },
+    ]);
+    wiser.process('r7w4');
+    expect(wiser.state.match.sequences).toEqual([
+      { action: 'r1r2', nullified: false },
+      { action: 'w4r1', nullified: true },
+      { action: 'r7w4', nullified: false },
+    ]);
+
+    wiser.process('r7w5');
+    expect(wiser.state.match.sequences).toEqual([
+      { action: 'r1r2', nullified: true },
+      { action: 'w4r1', nullified: true },
+      { action: 'r7w4', nullified: false },
+      { action: 'r7w5', nullified: false },
+    ]);
+  });
+
+  test('WWSC Nullify Miss Hit Sequences (Complex)', () => {
+    wiser.state.info.rules.config.missHitType = 'WWSC';
+
+    wiser.process('r1r2');
+    expect(wiser.state.match.sequences).toEqual([{ action: 'r1r2', nullified: false }]);
+    wiser.process('w4r2');
+    expect(wiser.state.match.sequences).toEqual([
+      { action: 'r1r2', nullified: false },
+      { action: 'w4r2', nullified: false },
+    ]);
+    wiser.process('r7w4');
+    expect(wiser.state.match.sequences).toEqual([
+      { action: 'r1r2', nullified: false },
+      { action: 'w4r2', nullified: true },
+      { action: 'r7w4', nullified: false },
+    ]);
+
+    wiser.process('r7w5');
+    expect(wiser.state.match.sequences).toEqual([
+      { action: 'r1r2', nullified: true },
+      { action: 'w4r2', nullified: true },
+      { action: 'r7w4', nullified: false },
+      { action: 'r7w5', nullified: false },
+    ]);
+  });
+
+  test('WWSC Nullify Miss Hit Sequences (Complex Eliminated)', () => {
+    wiser.state.info.rules.config.missHitType = 'WWSC';
+
+    wiser.process('r1r2');
+    expect(wiser.state.match.sequences).toEqual([{ action: 'r1r2', nullified: false }]);
+    wiser.process('w4r2');
+    expect(wiser.state.match.sequences).toEqual([
+      { action: 'r1r2', nullified: false },
+      { action: 'w4r2', nullified: false },
+    ]);
+    wiser.process('r3r2');
+    expect(wiser.state.match.sequences).toEqual([
+      { action: 'r1r2', nullified: true },
+      { action: 'w4r2', nullified: true },
+      { action: 'r3r2', nullified: true },
+    ]);
+  });
 });

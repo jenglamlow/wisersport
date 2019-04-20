@@ -16,3 +16,22 @@ export const removeFirstTeamBall = (arr: any[], team: string) => {
 
   return null;
 };
+
+export const isNormalHitSequence = (action: string, target: string) => {
+  const opposingTeam = target[0] === 'r' ? 'w' : 'r';
+  const regex = new RegExp(`${opposingTeam}\\d${target}`, 'g');
+  const match = action.match(regex);
+
+  return match !== null;
+};
+
+export const isMissHittSequence = (action: string, target: string, WWSC: boolean = false) => {
+  let regex = new RegExp(`${target}${target[0]}\\d`, 'g');
+
+  if (WWSC) {
+    regex = new RegExp(`${target[0]}\\d${target}`, 'g');
+  }
+  const match = action.match(regex);
+
+  return match !== null;
+};
