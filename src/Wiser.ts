@@ -380,10 +380,9 @@ export class Wiser {
 
 // wiser.state.info.rules.config.missHitType = 'WWSC';
 
-// wiser.process('r1r2');
-// wiser.process('w4r2');
-// wiser.process('r3r2');
-// wiser.process('w5w6');
+// wiser.process('r1w2');
+// wiser.process('r1w3');
+// wiser.process('r3w4');
 
 // console.log(wiser.state.match.r.balls[0]);
 
