@@ -489,3 +489,38 @@ describe('Sequence', () => {
     ]);
   });
 });
+
+describe('Undo/Redo', () => {
+  test('Basic Undo/Redo', () => {
+    const s0 = JSON.parse(JSON.stringify(wiser.state.match));
+    wiser.process('r1w2');
+    const s1 = JSON.parse(JSON.stringify(wiser.state.match));
+    wiser.process('r3w4');
+    const s2 = JSON.parse(JSON.stringify(wiser.state.match));
+
+    wiser.undo();
+    expect(wiser.state.match).toEqual(s1);
+
+    wiser.undo();
+    expect(wiser.state.match).toEqual(s0);
+
+    wiser.redo();
+    expect(wiser.state.match).toEqual(s1);
+
+    wiser.redo();
+    expect(wiser.state.match).toEqual(s2);
+  });
+
+  test('Undo and Replace', () => {
+    wiser.process('r1w2');
+    wiser.process('r1w2');
+    wiser.undo();
+    wiser.process('r1w3');
+
+    // Should replace the undo command
+    expect(wiser.state.match.sequences).toEqual([
+      { action: 'r1w2', nullified: false },
+      { action: 'r1w3', nullified: false },
+    ]);
+  });
+});

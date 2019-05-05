@@ -157,7 +157,31 @@ export class Wiser {
       this.rescue(rescue as IRescueBall);
     }
 
-    // console.log(deepDiff.diff(prevMatchState, this.state.match));
+    // Insert the command to command manager
+    const command = {
+      command: 'r1r2',
+      diff: deepDiff.diff(prevMatchState, this.state.match),
+      undo: (state, diff) => {
+        for (const i of diff) {
+          deepDiff.revertChange(state, {}, i);
+        }
+      },
+      redo: (state, diff) => {
+        for (const i of diff) {
+          deepDiff.applyChange(state, {}, i);
+        }
+      },
+    };
+
+    this.manager.add(command);
+  }
+
+  public undo() {
+    this.manager.undo();
+  }
+
+  public redo() {
+    this.manager.redo();
   }
 
   public reset() {
@@ -206,7 +230,6 @@ export class Wiser {
     if (type === 'rescue') {
       // Find non-missHit target
       const seq = validSequence.filter(s => isNormalHitSequence(s.action, target));
-      // const seq = validSequence.filter(s => s.action);
       seq[0].nullified = true;
     } else if (type === 'eliminate') {
       // eliminate mode
