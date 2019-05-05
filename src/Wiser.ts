@@ -117,14 +117,13 @@ export class Wiser {
   public manager: ICommandManager;
 
   constructor(red: string = 'Red Team', white: string = 'White Team', numOfBalls: number = 7) {
-    this.manager = new CommandManager();
-
     // Initialize Game State
     this.state = gameState;
     this.state.info.r.name = red;
     this.state.info.w.name = white;
 
     this.initBallState(numOfBalls);
+    this.manager = new CommandManager(this.state.match);
   }
 
   public process(input: string) {
@@ -202,7 +201,7 @@ export class Wiser {
   }
 
   private nullify(type: nullifyType, target) {
-    const validSequence = this.state.match.sequences.filter(s => s.nullified === false);
+    const validSequence = this.state.match.sequences.filter(s => !s.nullified);
 
     if (type === 'rescue') {
       // Find non-missHit target
@@ -385,14 +384,3 @@ export class Wiser {
 // wiser.process('r3w4');
 
 // console.log(wiser.state.match.r.balls[0]);
-
-// const change = deepDiff.diff(s0,s1);
-// let t;
-// // deepDiff.applyDiff(t,s0, change);
-// if (change) {
-//   for (const i of change) {
-//     deepDiff.applyChange(s0, {}, i);
-//     deepDiff.revertChange(s1, {}, i);
-
-//   }
-// }
