@@ -490,6 +490,41 @@ describe('Sequence', () => {
   });
 });
 
+describe('Score Info', () => {
+  test('Compute Score', () => {
+    wiser.process('r1w3');
+
+    expect(wiser.state.match.r.score.point).toBe(35);
+    expect(wiser.state.match.w.score.contesting).toBe(6);
+    expect(wiser.state.match.w.score.firstLocked).toBe(1);
+    expect(wiser.state.match.w.score.point).toBe(32);
+
+    wiser.process('w2r1');
+    expect(wiser.state.match.w.score.point).toBe(35);
+    expect(wiser.state.match.r.score.contesting).toBe(6);
+    expect(wiser.state.match.r.score.firstLocked).toBe(1);
+    expect(wiser.state.match.r.score.point).toBe(32);
+  });
+
+  test('Winner', () => {
+    wiser.process('r1w1');
+    wiser.process('r1w2');
+    wiser.process('r1w3');
+    wiser.process('r1w4');
+    wiser.process('r1w5');
+    wiser.process('r1w6');
+    expect(wiser.state.match.winner).toBe('');
+    wiser.process('r1w7');
+    expect(wiser.state.match.winner).toBe('r');
+    expect(wiser.state.match.w.score.contesting).toBe(0);
+
+    // Throw error if the match already has winner
+    expect(() => {
+      wiser.process('r1w7');
+    }).toThrow('The match already ended');
+  });
+});
+
 describe('Undo/Redo', () => {
   test('Basic Undo/Redo', () => {
     const s0 = JSON.parse(JSON.stringify(wiser.state.match));

@@ -1,77 +1,9 @@
 import deepDiff from 'deep-diff';
 
-import { CommandManager, ICommand, ICommandManager } from './CommandManager';
+import { CommandManager, ICommandManager } from './CommandManager';
 import { BallStatus } from './Constant';
+import { IBall, IGameRules, IGameState, IRescueBall, nullifyType } from './typings';
 import { isMissHittSequence, isNormalHitSequence, removeFirstTeamBall } from './utils';
-interface ISequence {
-  action: string;
-  nullified: boolean;
-}
-
-interface IBallstate {
-  label: string;
-  status: BallStatus;
-  foul: number;
-  hits: string[];
-  activeHits: string[];
-  hitBy: string[];
-}
-
-interface ITeamState {
-  score: number;
-  pendingRescue: string[];
-  balls: IBallstate[];
-}
-
-type TeamKeys = 'r' | 'w';
-interface IMatchInfo {
-  winner: string;
-  r: ITeamState;
-  w: ITeamState;
-  sequences: ISequence[];
-}
-
-interface IGameTeamInfo {
-  name: string;
-}
-
-type MissHitType = 'MY' | 'WWSC';
-interface IGameRules {
-  name: string;
-  config: {
-    points: {
-      contesting: number;
-      firstLocked: number;
-      secondLocked: number;
-      eliminated: number;
-    };
-    missHitType: MissHitType;
-  };
-}
-
-interface IGameInfo {
-  rules: IGameRules;
-  r: IGameTeamInfo;
-  w: IGameTeamInfo;
-}
-
-interface IBall {
-  team: TeamKeys;
-  idx: number;
-}
-
-type RescueType = 'normal' | 'missHit';
-interface IRescueBall {
-  type: RescueType;
-  ball: IBall;
-}
-
-type nullifyType = 'rescue' | 'eliminate' | 'rescueMissHit';
-
-export interface IGameState {
-  info: IGameInfo;
-  match: IMatchInfo;
-}
 
 const template: IGameRules = {
   name: 'Malaysia',
@@ -99,12 +31,24 @@ const gameState: IGameState = {
   match: {
     winner: '',
     r: {
-      score: 0,
+      score: {
+        point: 0,
+        contesting: 0,
+        firstLocked: 0,
+        secondLocked: 0,
+        eliminated: 0,
+      },
       pendingRescue: [],
       balls: [],
     },
     w: {
-      score: 0,
+      score: {
+        point: 0,
+        contesting: 0,
+        firstLocked: 0,
+        secondLocked: 0,
+        eliminated: 0,
+      },
       pendingRescue: [],
       balls: [],
     },
@@ -157,6 +101,9 @@ export class Wiser {
       this.rescue(rescue as IRescueBall);
     }
 
+    // Compute score and check for winner
+    this.computeScore();
+
     // Insert the command to command manager
     const command = {
       command: 'r1r2',
@@ -186,12 +133,50 @@ export class Wiser {
 
   public reset() {
     this.state.match.sequences = [];
-    this.state.match.r.score = 0;
+    this.state.match.r.score = {
+      point: 0,
+      contesting: 0,
+      firstLocked: 0,
+      secondLocked: 0,
+      eliminated: 0,
+    };
     this.state.match.r.pendingRescue = [];
-    this.state.match.w.score = 0;
+    this.state.match.w.score = {
+      point: 0,
+      contesting: 0,
+      firstLocked: 0,
+      secondLocked: 0,
+      eliminated: 0,
+    };
     this.state.match.w.pendingRescue = [];
+    this.state.match.winner = '';
 
     this.initBallState(this.state.match.r.balls.length);
+  }
+
+  private computeScore() {
+    const team = ['r', 'w'];
+    const points = this.state.info.rules.config.points;
+
+    team.forEach(t => {
+      const teamScore = this.state.match[t].score;
+      const teamBalls = this.state.match[t].balls;
+      teamScore.contesting = teamBalls.filter(b => b.status === BallStatus.Contesting).length;
+      teamScore.firstLocked = teamBalls.filter(b => b.status === BallStatus.FirstLocked).length;
+      teamScore.secondLocked = teamBalls.filter(b => b.status === BallStatus.SecondLocked).length;
+      teamScore.eliminated = teamBalls.filter(b => b.status === BallStatus.Eliminated).length;
+      teamScore.point =
+        teamScore.contesting * points.contesting +
+        teamScore.firstLocked * points.firstLocked +
+        teamScore.secondLocked * points.secondLocked +
+        teamScore.eliminated * points.eliminated;
+    });
+
+    if (this.state.match.r.score.contesting === 0) {
+      this.state.match.winner = 'w';
+    } else if (this.state.match.w.score.contesting === 0) {
+      this.state.match.winner = 'r';
+    }
   }
 
   private initBallState(numOfBalls: number) {
@@ -395,8 +380,6 @@ export class Wiser {
     return rescue;
   }
 }
-
-// const cm = new CommandManager();
 
 // const wiser = new Wiser();
 
