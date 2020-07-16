@@ -40,8 +40,6 @@ interface IGameTeamInfo {
   name: string;
 }
 
-type MissHitType = 'MY' | 'WWSC';
-
 export interface IGameRules {
   name: string;
   config: {
@@ -51,7 +49,6 @@ export interface IGameRules {
       secondLocked: number;
       eliminated: number;
     };
-    missHitType: MissHitType;
   };
 }
 

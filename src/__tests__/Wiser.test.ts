@@ -5,7 +5,6 @@ const wiser = new Wiser();
 
 beforeEach(() => {
   wiser.reset();
-  wiser.state.info.rules.config.missHitType = 'MY';
 });
 
 describe('Process Command', () => {
@@ -72,18 +71,6 @@ describe('Hit', () => {
   });
 
   test('Miss hit', () => {
-    wiser.process('r1r2');
-
-    // Malaysia
-    expect(wiser.state.match.r.balls[0].status).toBe(BallStatus.FirstLocked);
-    expect(wiser.state.match.r.balls[0].activeHits).toEqual(['r2']);
-    expect(wiser.state.match.r.balls[0].hits).toEqual(['r2']);
-    expect(wiser.state.match.r.balls[1].status).toBe(BallStatus.Contesting);
-    expect(wiser.state.match.r.balls[1].hitBy).toEqual([]);
-
-    // WWSC
-    wiser.state.info.rules.config.missHitType = 'WWSC';
-
     wiser.process('r3r4');
     expect(wiser.state.match.r.balls[2].status).toBe(BallStatus.Eliminated);
     expect(wiser.state.match.r.balls[3].status).toBe(BallStatus.FirstLocked);
@@ -161,24 +148,6 @@ describe('Rescue', () => {
 
   test('Basic Rescue Miss Hit', () => {
     wiser.process('r1r2');
-
-    // Malaysia
-    expect(wiser.state.match.r.balls[0].status).toBe(BallStatus.FirstLocked);
-    expect(wiser.state.match.r.balls[0].activeHits).toEqual(['r2']);
-    expect(wiser.state.match.r.balls[1].status).toBe(BallStatus.Contesting);
-    expect(wiser.state.match.r.balls[1].hitBy).toEqual([]);
-    expect(wiser.state.match.r.pendingRescue).toEqual(['r1']);
-
-    wiser.process('r3w1');
-    expect(wiser.state.match.r.balls[0].status).toBe(BallStatus.Contesting);
-    expect(wiser.state.match.r.balls[0].activeHits).toEqual([]);
-    expect(wiser.state.match.r.balls[1].hitBy).toEqual([]);
-    expect(wiser.state.match.r.pendingRescue).toEqual([]);
-
-    // WWSC
-    wiser.state.info.rules.config.missHitType = 'WWSC';
-
-    wiser.process('r1r2');
     expect(wiser.state.match.r.balls[0].status).toBe(BallStatus.Eliminated);
     expect(wiser.state.match.r.balls[0].activeHits).toEqual([]);
     expect(wiser.state.match.r.balls[1].status).toBe(BallStatus.FirstLocked);
@@ -192,58 +161,7 @@ describe('Rescue', () => {
     expect(wiser.state.match.r.pendingRescue).toEqual([]);
   });
 
-  test('MY Miss Hit and Get Locked By Opponent Combination Rescue Order Case 1', () => {
-    wiser.process('r1r2');
-    expect(wiser.state.match.r.balls[0].status).toBe(BallStatus.FirstLocked);
-    expect(wiser.state.match.r.balls[0].activeHits).toEqual(['r2']);
-    expect(wiser.state.match.r.balls[1].status).toBe(BallStatus.Contesting);
-    expect(wiser.state.match.r.balls[1].hitBy).toEqual([]);
-    expect(wiser.state.match.r.pendingRescue).toEqual(['r1']);
-
-    wiser.process('w1r1');
-    expect(wiser.state.match.r.balls[0].status).toBe(BallStatus.SecondLocked);
-    expect(wiser.state.match.r.balls[0].hitBy).toEqual(['w1']);
-    expect(wiser.state.match.r.pendingRescue).toEqual(['r1']);
-
-    wiser.process('r3w2');
-    expect(wiser.state.match.r.balls[0].status).toBe(BallStatus.FirstLocked);
-    expect(wiser.state.match.r.balls[0].hitBy).toEqual(['w1']);
-    expect(wiser.state.match.r.pendingRescue).toEqual([]);
-
-    wiser.process('r3w1');
-    expect(wiser.state.match.r.balls[0].status).toBe(BallStatus.Contesting);
-    expect(wiser.state.match.r.balls[0].hitBy).toEqual([]);
-    expect(wiser.state.match.r.pendingRescue).toEqual([]);
-  });
-
-  test('MY Miss Hit and Get Locked By Opponent Combination Rescue Order Case 2', () => {
-    wiser.process('r1r2');
-    expect(wiser.state.match.r.balls[0].status).toBe(BallStatus.FirstLocked);
-    expect(wiser.state.match.r.balls[0].activeHits).toEqual(['r2']);
-    expect(wiser.state.match.r.balls[1].status).toBe(BallStatus.Contesting);
-    expect(wiser.state.match.r.balls[1].hitBy).toEqual([]);
-    expect(wiser.state.match.r.pendingRescue).toEqual(['r1']);
-
-    wiser.process('w1r1');
-    expect(wiser.state.match.r.balls[0].status).toBe(BallStatus.SecondLocked);
-    expect(wiser.state.match.r.balls[0].hitBy).toEqual(['w1']);
-    expect(wiser.state.match.r.pendingRescue).toEqual(['r1']);
-
-    wiser.process('r3w1');
-    expect(wiser.state.match.r.balls[0].status).toBe(BallStatus.FirstLocked);
-    expect(wiser.state.match.r.balls[0].hitBy).toEqual([]);
-    expect(wiser.state.match.r.pendingRescue).toEqual(['r1']);
-
-    wiser.process('r3w2');
-    expect(wiser.state.match.r.balls[0].status).toBe(BallStatus.Contesting);
-    expect(wiser.state.match.r.balls[0].hitBy).toEqual([]);
-    expect(wiser.state.match.r.pendingRescue).toEqual([]);
-  });
-
-  test('WWSC Miss Hit and Get Locked By Opponent Combination Rescue Order Case 1', () => {
-    // WWSC
-    wiser.state.info.rules.config.missHitType = 'WWSC';
-
+  test('Miss Hit and Get Locked By Opponent Combination Rescue Order Case 1', () => {
     wiser.process('r1r2');
     expect(wiser.state.match.r.balls[0].status).toBe(BallStatus.Eliminated);
     expect(wiser.state.match.r.balls[1].status).toBe(BallStatus.FirstLocked);
@@ -266,10 +184,7 @@ describe('Rescue', () => {
     expect(wiser.state.match.r.pendingRescue).toEqual([]);
   });
 
-  test('WWSC Miss Hit and Get Locked By Opponent Combination Rescue Order Case 2', () => {
-    // WWSC
-    wiser.state.info.rules.config.missHitType = 'WWSC';
-
+  test('Miss Hit and Get Locked By Opponent Combination Rescue Order Case 2', () => {
     wiser.process('r1r2');
     expect(wiser.state.match.r.balls[0].status).toBe(BallStatus.Eliminated);
     expect(wiser.state.match.r.balls[1].status).toBe(BallStatus.FirstLocked);
@@ -331,7 +246,7 @@ describe('Sequence', () => {
     ]);
   });
 
-  test('MY Nullify Miss Hit Sequences', () => {
+  test('Nullify Miss Hit Sequences', () => {
     wiser.process('r1r2');
     expect(wiser.state.match.sequences).toEqual([{ action: 'r1r2', nullified: false }]);
     wiser.process('r3w4');
@@ -341,19 +256,7 @@ describe('Sequence', () => {
     ]);
   });
 
-  test('WWSC Nullify Miss Hit Sequences', () => {
-    wiser.state.info.rules.config.missHitType = 'WWSC';
-
-    wiser.process('r1r2');
-    expect(wiser.state.match.sequences).toEqual([{ action: 'r1r2', nullified: false }]);
-    wiser.process('r3w4');
-    expect(wiser.state.match.sequences).toEqual([
-      { action: 'r1r2', nullified: true },
-      { action: 'r3w4', nullified: false },
-    ]);
-  });
-
-  test('WWSC Nullify Team Pending Rescue', () => {
+  test('Nullify Team Pending Rescue', () => {
     wiser.process('r1w1');
     wiser.process('r1w2');
     wiser.process('r1w1');
@@ -421,33 +324,7 @@ describe('Sequence', () => {
     ]);
   });
 
-  test('MY Nullify Miss Hit Sequences (Complex)', () => {
-    wiser.process('r1r2');
-    expect(wiser.state.match.sequences).toEqual([{ action: 'r1r2', nullified: false }]);
-    wiser.process('w4r1');
-    expect(wiser.state.match.sequences).toEqual([
-      { action: 'r1r2', nullified: false },
-      { action: 'w4r1', nullified: false },
-    ]);
-    wiser.process('r7w4');
-    expect(wiser.state.match.sequences).toEqual([
-      { action: 'r1r2', nullified: false },
-      { action: 'w4r1', nullified: true },
-      { action: 'r7w4', nullified: false },
-    ]);
-
-    wiser.process('r7w5');
-    expect(wiser.state.match.sequences).toEqual([
-      { action: 'r1r2', nullified: true },
-      { action: 'w4r1', nullified: true },
-      { action: 'r7w4', nullified: false },
-      { action: 'r7w5', nullified: false },
-    ]);
-  });
-
-  test('WWSC Nullify Miss Hit Sequences (Complex)', () => {
-    wiser.state.info.rules.config.missHitType = 'WWSC';
-
+  test('Nullify Miss Hit Sequences (Complex)', () => {
     wiser.process('r1r2');
     expect(wiser.state.match.sequences).toEqual([{ action: 'r1r2', nullified: false }]);
     wiser.process('w4r2');
@@ -471,9 +348,7 @@ describe('Sequence', () => {
     ]);
   });
 
-  test('WWSC Nullify Miss Hit Sequences (Complex Eliminated)', () => {
-    wiser.state.info.rules.config.missHitType = 'WWSC';
-
+  test('Nullify Miss Hit Sequences (Complex Eliminated)', () => {
     wiser.process('r1r2');
     expect(wiser.state.match.sequences).toEqual([{ action: 'r1r2', nullified: false }]);
     wiser.process('w4r2');

@@ -1,4 +1,4 @@
-import { isMissHittSequence, isNormalHitSequence, removeFirst, removeFirstTeamBall } from '../utils';
+import { isMissHitSequence, isNormalHitSequence, removeFirst, removeFirstTeamBall } from '../utils';
 
 describe('removeFirst', () => {
   test('Remove first matched value in the array', () => {
@@ -63,10 +63,10 @@ test('isNormalHitSequence', () => {
     { action: 'r7w4', nullified: false },
   ];
 
-  expect(seq.filter(s => isNormalHitSequence(s.action, 'r2'))).toEqual([{ action: 'w4r2', nullified: false }]);
+  expect(seq.filter((s) => isNormalHitSequence(s.action, 'r2'))).toEqual([{ action: 'w4r2', nullified: false }]);
 
   // If not match
-  expect(seq.filter(s => isNormalHitSequence(s.action, 'r3'))).toEqual([]);
+  expect(seq.filter((s) => isNormalHitSequence(s.action, 'r3'))).toEqual([]);
 });
 
 test('isMissHitSequence', () => {
@@ -76,11 +76,8 @@ test('isMissHitSequence', () => {
     { action: 'r7w4', nullified: false },
   ];
 
-  expect(seq.filter(s => isMissHittSequence(s.action, 'r1'))).toEqual([{ action: 'r1r2', nullified: false }]);
+  expect(seq.filter((s) => isMissHitSequence(s.action, 'r2'))).toEqual([{ action: 'r1r2', nullified: false }]);
 
   // If not match
-  expect(seq.filter(s => isMissHittSequence(s.action, 'r3'))).toEqual([]);
-
-  // WWSC
-  expect(seq.filter(s => isMissHittSequence(s.action, 'r2', true))).toEqual([{ action: 'r1r2', nullified: false }]);
+  expect(seq.filter((s) => isMissHitSequence(s.action, 'r3'))).toEqual([]);
 });

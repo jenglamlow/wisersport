@@ -7,7 +7,7 @@ export const removeFirst = (arr: any[], value: string) => {
 
 export const removeFirstTeamBall = (arr: any[], team: string) => {
   const regex = new RegExp(`${team}\\d`, 'g');
-  const match = arr.filter(ball => ball.match(regex));
+  const match = arr.filter((ball) => ball.match(regex));
 
   if (match.length > 0) {
     removeFirst(arr, match[0]);
@@ -25,12 +25,9 @@ export const isNormalHitSequence = (action: string, target: string) => {
   return match !== null;
 };
 
-export const isMissHittSequence = (action: string, target: string, WWSC: boolean = false) => {
-  let regex = new RegExp(`${target}${target[0]}\\d`, 'g');
+export const isMissHitSequence = (action: string, target: string) => {
+  const regex = new RegExp(`${target[0]}\\d${target}`, 'g');
 
-  if (WWSC) {
-    regex = new RegExp(`${target[0]}\\d${target}`, 'g');
-  }
   const match = action.match(regex);
 
   return match !== null;

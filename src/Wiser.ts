@@ -3,10 +3,10 @@ import deepDiff from 'deep-diff';
 import { CommandManager, ICommandManager } from './CommandManager';
 import { BallStatus } from './Constant';
 import { IBall, IGameRules, IGameState, IRescueBall, nullifyType } from './typings';
-import { isMissHittSequence, isNormalHitSequence, removeFirstTeamBall } from './utils';
+import { isMissHitSequence, isNormalHitSequence, removeFirstTeamBall } from './utils';
 
 const template: IGameRules = {
-  name: 'Malaysia',
+  name: 'WWSC',
   config: {
     points: {
       contesting: 5,
@@ -14,7 +14,6 @@ const template: IGameRules = {
       secondLocked: 1,
       eliminated: 0,
     },
-    missHitType: 'MY',
   },
 };
 
@@ -158,13 +157,13 @@ export class Wiser {
     const team = ['r', 'w'];
     const points = this.state.info.rules.config.points;
 
-    team.forEach(t => {
+    team.forEach((t) => {
       const teamScore = this.state.match[t].score;
       const teamBalls = this.state.match[t].balls;
-      teamScore.contesting = teamBalls.filter(b => b.status === BallStatus.Contesting).length;
-      teamScore.firstLocked = teamBalls.filter(b => b.status === BallStatus.FirstLocked).length;
-      teamScore.secondLocked = teamBalls.filter(b => b.status === BallStatus.SecondLocked).length;
-      teamScore.eliminated = teamBalls.filter(b => b.status === BallStatus.Eliminated).length;
+      teamScore.contesting = teamBalls.filter((b) => b.status === BallStatus.Contesting).length;
+      teamScore.firstLocked = teamBalls.filter((b) => b.status === BallStatus.FirstLocked).length;
+      teamScore.secondLocked = teamBalls.filter((b) => b.status === BallStatus.SecondLocked).length;
+      teamScore.eliminated = teamBalls.filter((b) => b.status === BallStatus.Eliminated).length;
       teamScore.point =
         teamScore.contesting * points.contesting +
         teamScore.firstLocked * points.firstLocked +
@@ -210,23 +209,21 @@ export class Wiser {
   }
 
   private nullify(type: nullifyType, target) {
-    const validSequence = this.state.match.sequences.filter(s => !s.nullified);
+    const validSequence = this.state.match.sequences.filter((s) => !s.nullified);
 
     if (type === 'rescue') {
       // Find non-missHit target
-      const seq = validSequence.filter(s => isNormalHitSequence(s.action, target));
+      const seq = validSequence.filter((s) => isNormalHitSequence(s.action, target));
       seq[0].nullified = true;
     } else if (type === 'eliminate') {
       // eliminate mode
-      const seq = validSequence.filter(s => s.action.indexOf(target.slice(0, 2)) === 2);
+      const seq = validSequence.filter((s) => s.action.indexOf(target.slice(0, 2)) === 2);
       seq[0].nullified = true;
       seq[1].nullified = true;
       seq[2].nullified = true;
     } else {
       // Rescue Miss Hit
-      const seq = validSequence.filter(s =>
-        isMissHittSequence(s.action, target, this.state.info.rules.config.missHitType === 'WWSC')
-      );
+      const seq = validSequence.filter((s) => isMissHitSequence(s.action, target));
       seq[0].nullified = true;
     }
   }
@@ -246,11 +243,7 @@ export class Wiser {
         this.nullify('rescue', t.label);
       } else {
         t.status -= 1;
-        if (this.state.info.rules.config.missHitType === 'MY') {
-          removeFirstTeamBall(t.activeHits, ball.team);
-        } else {
-          removeFirstTeamBall(t.hitBy, ball.team);
-        }
+        removeFirstTeamBall(t.hitBy, ball.team);
 
         // Nullify Rescued Ball Sequence
         this.nullify('rescueMissHit', t.label);
@@ -300,10 +293,10 @@ export class Wiser {
       // Check whether target is eliminated
       if (t.status === BallStatus.Eliminated) {
         // Remove target from source's active list
-        s.activeHits = s.activeHits.filter(ball => ball !== t.label);
+        s.activeHits = s.activeHits.filter((ball) => ball !== t.label);
 
         // Remove the eliminated ball from source team active list
-        sTeam.pendingRescue = sTeam.pendingRescue.filter(ball => ball !== t.label);
+        sTeam.pendingRescue = sTeam.pendingRescue.filter((ball) => ball !== t.label);
 
         // Nullify eliminated sequence
         this.nullify('eliminate', t.label);
@@ -347,32 +340,25 @@ export class Wiser {
       }
     } else {
       // Miss Hit
-      const missHitType = this.state.info.rules.config.missHitType;
-      if (missHitType === 'MY') {
-        s.status += 1;
-        s.activeHits.push(t.label);
-        sTeam.pendingRescue.push(s.label);
-      } else {
-        s.status = BallStatus.Eliminated;
-        t.status += 1;
-        t.hitBy.push(s.label);
+      s.status = BallStatus.Eliminated;
+      t.status += 1;
+      t.hitBy.push(s.label);
 
-        // Move the eliminated source's pending rescue to the team's pending rescue
-        if (t.status === BallStatus.Eliminated) {
-          tTeam.pendingRescue.push(...t.activeHits);
+      // Move the eliminated source's pending rescue to the team's pending rescue
+      if (t.status === BallStatus.Eliminated) {
+        tTeam.pendingRescue.push(...t.activeHits);
 
-          // Clear eliminated's ball active hit list
-          t.activeHits = [];
+        // Clear eliminated's ball active hit list
+        t.activeHits = [];
 
-          // Nullify eliminated sequence
-          this.nullify('eliminate', t.label);
-        }
-        // Transfer active hit to team's pending rescue
-        sTeam.pendingRescue.push(...s.activeHits);
-
-        // Pending Rescue miss-hitted target
-        sTeam.pendingRescue.push(t.label);
+        // Nullify eliminated sequence
+        this.nullify('eliminate', t.label);
       }
+      // Transfer active hit to team's pending rescue
+      sTeam.pendingRescue.push(...s.activeHits);
+
+      // Pending Rescue miss-hitted target
+      sTeam.pendingRescue.push(t.label);
 
       // Source
       s.hits.push(t.label);
@@ -382,8 +368,6 @@ export class Wiser {
 }
 
 // const wiser = new Wiser();
-
-// wiser.state.info.rules.config.missHitType = 'WWSC';
 
 // wiser.process('r1w2');
 // wiser.process('r1w3');
